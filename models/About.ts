@@ -13,6 +13,13 @@ const AboutSchema = new Schema(
     image: { type: String, default: "" },
     resumeUrl: { type: String, default: "" },
     competencyText: { type: String, default: "" },
+    contact: {
+      heading: { type: String, default: "" }, // page header title
+      pill: { type: String, default: "" }, // filter pill label
+      infoHeading: { type: String, default: "" }, // info panel h2
+      infoParagraphs: { type: [String], default: [] }, // info panel paragraphs
+      email: { type: String, default: "" },
+    },
     socials: {
       linkedin: { type: String, default: "" },
       github: { type: String, default: "" },

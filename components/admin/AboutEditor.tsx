@@ -67,31 +67,8 @@ export default function AboutEditor() {
 
   return (
     <div>
-      <h1 className="admin-h1">About &amp; Hero</h1>
-      <p className="admin-sub">Content for the hero section and the About page.</p>
-
-      <div className="admin-card">
-        <div className="admin-field">
-          <label>Name (big hero title)</label>
-          <input value={data.name} onChange={(e) => set("name", e.target.value)} />
-        </div>
-        <div className="admin-field">
-          <label>Hero rotating phrases (one per line)</label>
-          <textarea
-            rows={3}
-            value={data.heroPhrases.join("\n")}
-            onChange={(e) => set("heroPhrases", e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))}
-          />
-        </div>
-        <div className="admin-field">
-          <label>Hero description</label>
-          <textarea rows={3} value={data.heroDescription} onChange={(e) => set("heroDescription", e.target.value)} />
-        </div>
-        <div className="admin-field">
-          <label>Competency statement (HTML allowed — wrap highlights in &lt;span class=&quot;gradient-text&quot;&gt;…&lt;/span&gt;)</label>
-          <textarea rows={3} value={data.competencyText} onChange={(e) => set("competencyText", e.target.value)} />
-        </div>
-      </div>
+      <h1 className="admin-h1">About Section</h1>
+      <p className="admin-sub">Content for the About page.</p>
 
       <div className="admin-card">
         <div className="admin-field">
@@ -144,7 +121,7 @@ export default function AboutEditor() {
 
       {msg && <div className={msg === "Saved!" ? "admin-ok" : "admin-error"}>{msg}</div>}
       <button className="admin-btn" onClick={save} disabled={saving}>
-        {saving ? "Saving…" : "Save all"}
+        {saving ? "Saving…" : "Save about"}
       </button>
     </div>
   );

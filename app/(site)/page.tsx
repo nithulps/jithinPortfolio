@@ -2,6 +2,8 @@ import Link from "next/link";
 import RotatingText from "@/components/RotatingText";
 import ProjectCard from "@/components/ProjectCard";
 import ServiceCard from "@/components/ServiceCard";
+import CompetencyText from "@/components/CompetencyText";
+import ScrollRevealRow from "@/components/ScrollRevealRow";
 import { getAbout, getFeaturedProjects, getServices } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -59,12 +61,9 @@ export default async function HomePage() {
 
       {/* Competency */}
       {about?.competencyText && (
-        <section className="competency-box reveal" id="competences">
-          <h2
-            className="competency-text"
-            dangerouslySetInnerHTML={{ __html: about.competencyText }}
-          />
-          <Link href="/contact" className="btn-hero" style={{ marginTop: 40 }}>
+        <section className="competency-box" id="competences">
+          <CompetencyText html={about.competencyText} />
+          <Link href="/contact" className="btn-hero reveal" style={{ marginTop: 40 }}>
             Start a project
           </Link>
         </section>
@@ -78,11 +77,11 @@ export default async function HomePage() {
             Learn more
           </Link>
         </div>
-        <div className="services-grid">
+        <ScrollRevealRow className="services-grid">
           {services.map((s) => (
             <ServiceCard key={s._id} service={s} />
           ))}
-        </div>
+        </ScrollRevealRow>
       </section>
     </>
   );

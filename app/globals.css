@@ -766,7 +766,7 @@ nav.main-menu ul li a.active::after {
 
 /* Competency statement section */
 .competency-box {
-    padding: 120px 50px;
+    padding: 60px 50px;
     text-align: left;
     max-width: 1100px;
     margin: 0 auto;
@@ -1855,4 +1855,19 @@ footer.site-footer {
 .footer-cta .btn-footer:hover {
     color: var(--btn-text);
     font-weight: 600;
+}
+/* ── Competency statement: scroll-linked word reveal (JS-driven) ─────── */
+.reveal-words .cw {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(10px);
+    will-change: opacity, transform, filter;
+}
+@media (prefers-reduced-motion: reduce) {
+    .reveal-words .cw {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
 }

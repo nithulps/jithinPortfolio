@@ -41,5 +41,12 @@ export interface AboutDTO {
   image: string;
   resumeUrl: string;
   competencyText: string;
+  contact?: {
+    heading?: string;
+    pill?: string;
+    infoHeading?: string;
+    infoParagraphs?: string[];
+    email?: string;
+  };
   socials: { linkedin?: string; github?: string; twitter?: string; instagram?: string };
 }
