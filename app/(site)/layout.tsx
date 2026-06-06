@@ -4,11 +4,15 @@ import Footer from "@/components/Footer";
 import SocialSidebar from "@/components/SocialSidebar";
 import StatusBadge from "@/components/StatusBadge";
 import BackToTop from "@/components/BackToTop";
-import { getAbout } from "@/lib/data";
+import { getAbout, getNavPages } from "@/lib/data";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const about = await getAbout();
+  const [about, navPages] = await Promise.all([getAbout(), getNavPages()]);
   const socials = about?.socials;
+  const extraNav = navPages.map((p) => ({
+    href: `/${p.slug}`,
+    label: p.navLabel || p.title,
+  }));
 
   return (
     <>
@@ -27,12 +31,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </div>
 
       <SocialSidebar socials={socials} />
-      <StatusBadge />
-      <Header socials={socials} />
+      <StatusBadge text={about?.statusText} />
+      <Header socials={socials} extraNav={extraNav} />
 
       {children}
 
-      <Footer />
+      <Footer heading={about?.footerHeading} subtitle={about?.footerSubtitle} />
       <BackToTop />
       <ClientEffects />
     </>

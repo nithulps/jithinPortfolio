@@ -17,6 +17,8 @@ const ProjectSchema = new Schema(
     githubUrl: { type: String, default: "" },
     featured: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
+    overlayTitle: { type: String, default: "" },
+    overlaySub: { type: String, default: "" },
   },
   { timestamps: true }
 );

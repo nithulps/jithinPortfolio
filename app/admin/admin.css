@@ -133,11 +133,22 @@
   font-family: inherit;
   width: 100%;
 }
+.admin-field input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  border-radius: 4px;
+  accent-color: #00deff;
+  cursor: pointer;
+}
 .admin-field input:focus,
 .admin-field textarea:focus,
 .admin-field select:focus {
   outline: none;
   border-color: #00deff;
+}
+.admin-field select option {
+  background: #0b0d10;
+  color: #e2e8f0;
 }
 .admin-row {
   display: grid;

@@ -12,6 +12,7 @@ interface About {
   image: string;
   resumeUrl: string;
   competencyText: string;
+  statusText: string;
   socials: { linkedin: string; github: string; twitter: string; instagram: string };
 }
 
@@ -25,6 +26,7 @@ const EMPTY: About = {
   image: "",
   resumeUrl: "",
   competencyText: "",
+  statusText: "",
   socials: { linkedin: "", github: "", twitter: "", instagram: "" },
 };
 
@@ -86,6 +88,14 @@ export default function HeroEditor() {
         <div className="admin-field">
           <label>Competency statement (HTML allowed — wrap highlights in &lt;span class=&quot;gradient-text&quot;&gt;…&lt;/span&gt;)</label>
           <textarea rows={3} value={data.competencyText} onChange={(e) => set("competencyText", e.target.value)} />
+        </div>
+        <div className="admin-field">
+          <label>&quot;Open to work&quot; badge text (floating side label)</label>
+          <input
+            value={data.statusText}
+            placeholder="Open to work"
+            onChange={(e) => set("statusText", e.target.value)}
+          />
         </div>
       </div>
 

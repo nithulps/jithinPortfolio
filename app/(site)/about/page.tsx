@@ -23,7 +23,7 @@ export default async function AboutPage() {
         <h1>About</h1>
         <div className="page-filter-pills">
           <span className="filter-pill active">{about?.name || "Jithin"}</span>
-          <span className="filter-pill active">QA Engineer</span>
+          <span className="filter-pill active">{about?.roleLabel || "QA Engineer"}</span>
         </div>
       </section>
 

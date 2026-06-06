@@ -14,7 +14,11 @@ export async function PUT(request: Request) {
   try {
     await connectDB();
     const body = await request.json();
+    // Strip Mongoose meta so editors can safely PUT the whole document.
     delete body._id;
+    delete body.__v;
+    delete body.createdAt;
+    delete body.updatedAt;
     const updated = await About.findOneAndUpdate(
       { key: "main" },
       { ...body, key: "main" },

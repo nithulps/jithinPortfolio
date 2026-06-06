@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-const NAV = [
+const DEFAULT_NAV = [
   { href: "/projects", label: "Projects" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
@@ -19,12 +19,23 @@ function isActive(pathname: string, href: string) {
 export default function Header({
   logo,
   socials,
+  extraNav,
 }: {
   logo?: string;
   socials?: { linkedin?: string; github?: string; instagram?: string };
+  extraNav?: { href: string; label: string }[];
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // Insert custom pages before Contact (last default item)
+  const NAV = extraNav?.length
+    ? [
+        ...DEFAULT_NAV.slice(0, -1),
+        ...extraNav,
+        DEFAULT_NAV[DEFAULT_NAV.length - 1],
+      ]
+    : DEFAULT_NAV;
 
   return (
     <>

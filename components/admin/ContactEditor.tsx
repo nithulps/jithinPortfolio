@@ -8,6 +8,8 @@ interface Contact {
   infoHeading: string;
   infoParagraphs: string[];
   email: string;
+  phone: string;
+  address: string;
 }
 
 interface About {
@@ -21,6 +23,8 @@ const EMPTY_CONTACT: Contact = {
   infoHeading: "",
   infoParagraphs: [],
   email: "",
+  phone: "",
+  address: "",
 };
 
 export default function ContactEditor() {
@@ -103,12 +107,30 @@ export default function ContactEditor() {
           />
         </div>
         <div className="admin-field">
-          <label>Contact email (optional — shown on the page)</label>
+          <label>Contact email (shown on the page)</label>
           <input
             value={contact.email}
             placeholder="you@example.com"
             onChange={(e) => set("email", e.target.value)}
           />
+        </div>
+        <div className="admin-row">
+          <div className="admin-field">
+            <label>Phone (optional)</label>
+            <input
+              value={contact.phone}
+              placeholder="+91 98765 43210"
+              onChange={(e) => set("phone", e.target.value)}
+            />
+          </div>
+          <div className="admin-field">
+            <label>Address / location (optional)</label>
+            <input
+              value={contact.address}
+              placeholder="Kochi, Kerala, India"
+              onChange={(e) => set("address", e.target.value)}
+            />
+          </div>
         </div>
       </div>
 

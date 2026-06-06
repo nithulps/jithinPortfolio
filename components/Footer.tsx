@@ -11,7 +11,13 @@ const MESSAGES = [
   "Contact me!",
 ];
 
-export default function Footer() {
+export default function Footer({
+  heading,
+  subtitle,
+}: {
+  heading?: string;
+  subtitle?: string;
+}) {
   return (
     <footer className="site-footer" id="contact">
       <div className="aeruk-marquee">
@@ -26,8 +32,8 @@ export default function Footer() {
       </div>
 
       <div className="footer-cta reveal">
-        <h2>Ready to ship quality software?</h2>
-        <p>Tell me about your project and testing needs — let&apos;s discuss and work together!</p>
+        <h2>{heading || "Ready to ship quality software?"}</h2>
+        <p>{subtitle || "Tell me about your project and testing needs — let\u2019s discuss and work together!"}</p>
         <Link href="/contact" className="btn-footer">
           Start a project
         </Link>

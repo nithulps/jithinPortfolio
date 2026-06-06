@@ -13,12 +13,18 @@ const AboutSchema = new Schema(
     image: { type: String, default: "" },
     resumeUrl: { type: String, default: "" },
     competencyText: { type: String, default: "" },
+    roleLabel: { type: String, default: "" }, // about-page pill next to the name
+    statusText: { type: String, default: "" }, // floating "Open to work" badge
+    footerHeading: { type: String, default: "" }, // footer CTA heading
+    footerSubtitle: { type: String, default: "" }, // footer CTA sub-text
     contact: {
       heading: { type: String, default: "" }, // page header title
       pill: { type: String, default: "" }, // filter pill label
       infoHeading: { type: String, default: "" }, // info panel h2
       infoParagraphs: { type: [String], default: [] }, // info panel paragraphs
       email: { type: String, default: "" },
+      phone: { type: String, default: "" },
+      address: { type: String, default: "" },
     },
     socials: {
       linkedin: { type: String, default: "" },

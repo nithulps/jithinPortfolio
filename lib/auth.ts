@@ -28,9 +28,3 @@ export async function verifySession(token: string | undefined): Promise<SessionP
     return null;
   }
 }
-
-export function checkCredentials(username: string, password: string): boolean {
-  const u = process.env.ADMIN_USERNAME || "admin";
-  const p = process.env.ADMIN_PASSWORD || "";
-  return username === u && password.length > 0 && password === p;
-}

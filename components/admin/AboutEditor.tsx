@@ -13,6 +13,7 @@ interface About {
   image: string;
   resumeUrl: string;
   competencyText: string;
+  roleLabel: string;
   socials: { linkedin: string; github: string; twitter: string; instagram: string };
 }
 
@@ -26,6 +27,7 @@ const EMPTY: About = {
   image: "",
   resumeUrl: "",
   competencyText: "",
+  roleLabel: "",
   socials: { linkedin: "", github: "", twitter: "", instagram: "" },
 };
 
@@ -71,6 +73,14 @@ export default function AboutEditor() {
       <p className="admin-sub">Content for the About page.</p>
 
       <div className="admin-card">
+        <div className="admin-field">
+          <label>Role pill (next to your name)</label>
+          <input
+            value={data.roleLabel}
+            placeholder="QA Engineer"
+            onChange={(e) => set("roleLabel", e.target.value)}
+          />
+        </div>
         <div className="admin-field">
           <label>About headline</label>
           <textarea rows={2} value={data.headline} onChange={(e) => set("headline", e.target.value)} />

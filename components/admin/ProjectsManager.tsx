@@ -20,6 +20,8 @@ interface Project {
   githubUrl: string;
   featured: boolean;
   order: number;
+  overlayTitle: string;
+  overlaySub: string;
 }
 
 const EMPTY: Project = {
@@ -38,6 +40,8 @@ const EMPTY: Project = {
   githubUrl: "",
   featured: false,
   order: 0,
+  overlayTitle: "",
+  overlaySub: "",
 };
 
 export default function ProjectsManager() {
@@ -138,6 +142,17 @@ export default function ProjectsManager() {
             folder="portfolio/projects"
             onChange={(url) => set("coverImage", url)}
           />
+
+          <div className="admin-row">
+            <div className="admin-field">
+              <label>Image overlay title (optional — shown on cover image)</label>
+              <input value={editing.overlayTitle} onChange={(e) => set("overlayTitle", e.target.value)} placeholder="e.g. CRM TECH-O ft. SINEO" />
+            </div>
+            <div className="admin-field">
+              <label>Image overlay subtitle (optional)</label>
+              <input value={editing.overlaySub} onChange={(e) => set("overlaySub", e.target.value)} placeholder="e.g. UX/UI DESIGN" />
+            </div>
+          </div>
 
           <div className="admin-field">
             <label>Gallery visuals</label>

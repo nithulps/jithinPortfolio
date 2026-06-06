@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ProjectDTO } from "@/lib/data";
 
 export default function ProjectCard({ project }: { project: ProjectDTO }) {
+  const hasOverlay = !!(project.overlayTitle || project.overlaySub);
+
   return (
     <Link href={`/projects/${project.slug}`} className="project-card reveal">
       <div className="project-image-wrapper">
@@ -10,6 +12,12 @@ export default function ProjectCard({ project }: { project: ProjectDTO }) {
           <img src={project.coverImage} alt={project.title} />
         )}
         <div className="project-card-glow" />
+        {hasOverlay && (
+          <div className="project-card-overlay">
+            {project.overlayTitle && <h4 className="project-overlay-title">{project.overlayTitle}</h4>}
+            {project.overlaySub && <p className="project-overlay-sub">{project.overlaySub}</p>}
+          </div>
+        )}
       </div>
       <div className="project-tags">
         {(project.tags?.length ? project.tags : [project.category]).filter(Boolean).map((t) => (
