@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { AdminUser } from "@/models/AdminUser";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth";
-import { verifyCredentials, hashPassword, generateSalt } from "@/lib/auth-db";
+import { hashPassword, generateSalt } from "@/lib/auth-db";
 import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
@@ -15,15 +15,10 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { currentPassword, newUsername, newPassword } = await request.json();
+    const { newUsername, newPassword } = await request.json();
 
-    if (!currentPassword || !newUsername || !newPassword) {
+    if (!newUsername || !newPassword) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
-    }
-
-    const isValid = await verifyCredentials(session.username, currentPassword);
-    if (!isValid) {
-      return NextResponse.json({ error: "Current password is incorrect." }, { status: 401 });
     }
 
     await connectDB();

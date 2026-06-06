@@ -38,7 +38,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       );
     }
 
-    const updated = await Page.findByIdAndUpdate(params.id, updateData, { new: true });
+    const updated = await Page.findByIdAndUpdate(params.id, { $set: updateData }, { new: true });
     return NextResponse.json(updated);
   } catch (err) {
     console.error("PUT /api/admin/pages/[id] error:", err);

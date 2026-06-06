@@ -7,11 +7,13 @@ export default function MediaUploader({
   value,
   onChange,
   folder = "portfolio",
+  allowPdf = false,
 }: {
   label: string;
   value: string;
   onChange: (url: string) => void;
   folder?: string;
+  allowPdf?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -63,6 +65,7 @@ export default function MediaUploader({
   }
 
   const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(value);
+  const isPdf = /\.pdf(\?|$)/i.test(value) || value.includes("/raw/upload/");
 
   return (
     <div className="admin-field" style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
@@ -72,7 +75,7 @@ export default function MediaUploader({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept={allowPdf ? "image/*,video/*,application/pdf" : "image/*,video/*"}
         onChange={handleFileChange}
         disabled={uploading}
         style={{ display: "none" }}
@@ -117,7 +120,22 @@ export default function MediaUploader({
               backgroundColor: "#0b0d10",
               position: "relative"
             }}>
-              {isVideo ? (
+              {isPdf ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 16px" }}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ff8095" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="15" y2="17" />
+                  </svg>
+                  <span style={{ color: "#e7e9ee", fontSize: "0.85rem", wordBreak: "break-all", textAlign: "center" }}>
+                    {value.split("/").pop()?.split("?")[0] || "document.pdf"}
+                  </span>
+                  <a href={value} target="_blank" rel="noopener noreferrer" style={{ color: "#00deff", fontSize: "0.8rem" }}>
+                    Open PDF
+                  </a>
+                </div>
+              ) : isVideo ? (
                 <video src={value} controls style={{ width: "100%", display: "block", maxHeight: "180px", objectFit: "contain" }} />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -195,7 +213,7 @@ export default function MediaUploader({
               Drag & drop a file here, or <span style={{ color: "#00deff", fontWeight: 500 }}>browse</span>
             </div>
             <div style={{ fontSize: "0.78rem", color: "#6a768a" }}>
-              Supports images and videos
+              {allowPdf ? "Supports images, videos, and PDFs" : "Supports images and videos"}
             </div>
           </div>
         )}

@@ -161,3 +161,23 @@ export async function getPageBySlug(slug: string): Promise<PageDTO | null> {
     return null;
   }
 }
+
+export async function getPageSection(
+  pageSlug: string,
+  sectionSlug: string
+): Promise<{ page: PageDTO; section: PageDTO["sections"][number] } | null> {
+  try {
+    await connectDB();
+    const doc = await Page.findOne({ slug: pageSlug }).lean();
+    if (!doc) return null;
+    const page = serialize<PageDTO>(doc);
+    const toSlug = (t: string) => t.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const section = page.sections.find(
+      (s) => s.sectionSlug === sectionSlug || toSlug(s.sectionTitle) === sectionSlug
+    );
+    if (!section) return null;
+    return { page, section };
+  } catch {
+    return null;
+  }
+}

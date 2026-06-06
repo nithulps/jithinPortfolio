@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import MediaUploader from "@/components/admin/MediaUploader";
+import MultiFileUploader from "@/components/admin/MultiFileUploader";
 
 interface Section {
   sectionTitle: string;
+  sectionSlug: string;
   sectionBody: string;
   sectionImage: string;
+  sectionFiles: string[];
   showOnHomepage: boolean;
   sectionOverlayTitle: string;
   sectionOverlaySub: string;
@@ -32,7 +35,7 @@ interface PageItem {
   gridColumns: 2 | 3;
 }
 
-const EMPTY_SECTION: Section = { sectionTitle: "", sectionBody: "", sectionImage: "", showOnHomepage: false, sectionOverlayTitle: "", sectionOverlaySub: "" };
+const EMPTY_SECTION: Section = { sectionTitle: "", sectionSlug: "", sectionBody: "", sectionImage: "", sectionFiles: [], showOnHomepage: false, sectionOverlayTitle: "", sectionOverlaySub: "" };
 
 const EMPTY: PageItem = {
   title: "",
@@ -59,6 +62,8 @@ export default function PagesManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [activeTab, setActiveTab] = useState<"basic" | "sections" | "settings">("basic");
 
   async function load() {
     setLoading(true);
@@ -81,7 +86,7 @@ export default function PagesManager() {
     setEditing((p) => (p ? { ...p, [key]: val } : p));
   }
 
-  function setSection(index: number, key: keyof Section, val: string | boolean) {
+  function setSection(index: number, key: keyof Section, val: string | boolean | string[]) {
     if (!editing) return;
     const updated = editing.sections.map((s, i) =>
       i === index ? { ...s, [key]: val } : s
@@ -91,12 +96,37 @@ export default function PagesManager() {
 
   function addSection() {
     if (!editing) return;
+    const newIndex = editing.sections.length;
     set("sections", [...editing.sections, { ...EMPTY_SECTION }]);
+    setExpandedIndex(newIndex);
   }
 
   function removeSection(index: number) {
     if (!editing) return;
-    set("sections", editing.sections.filter((_, i) => i !== index));
+    const updated = editing.sections.filter((_, i) => i !== index);
+    set("sections", updated);
+    
+    if (expandedIndex === index) {
+      setExpandedIndex(updated.length > 0 ? Math.max(0, index - 1) : null);
+    } else if (expandedIndex !== null && expandedIndex > index) {
+      setExpandedIndex(expandedIndex - 1);
+    }
+  }
+
+  function moveSection(index: number, direction: -1 | 1) {
+    if (!editing) return;
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= editing.sections.length) return;
+    
+    const updated = [...editing.sections];
+    [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
+    set("sections", updated);
+    
+    if (expandedIndex === index) {
+      setExpandedIndex(nextIndex);
+    } else if (expandedIndex === nextIndex) {
+      setExpandedIndex(index);
+    }
   }
 
   async function save() {
@@ -150,162 +180,273 @@ export default function PagesManager() {
               <span style={{ fontSize: ".7em", color: "var(--cyan)", marginLeft: 10 }}>Built-in</span>
             )}
           </h1>
-          <button className="admin-btn ghost" onClick={() => setEditing(null)}>
-            ← Back
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="admin-btn ghost" onClick={() => { setEditing(null); setActiveTab("basic"); }}>
+              ← Back
+            </button>
+            <button className="admin-btn" onClick={save} disabled={saving}>
+              {saving ? "Saving…" : "Save page"}
+            </button>
+          </div>
         </div>
 
-        {/* Content fields — only for custom pages */}
-        {!isBuiltIn && (
-          <>
-            <div className="admin-card">
-              <div className="admin-row">
-                <div className="admin-field">
-                  <label>Title</label>
-                  <input value={editing.title} onChange={(e) => set("title", e.target.value)} />
-                </div>
-                <div className="admin-field">
-                  <label>Slug (URL, optional)</label>
-                  <input value={editing.slug} onChange={(e) => set("slug", e.target.value)} placeholder="auto from title" />
-                </div>
+        {error && <div className="admin-error">{error}</div>}
+
+        <div className="admin-card">
+          {/* Tab Navigation */}
+          {!isBuiltIn && (
+            <div className="admin-tabs-nav">
+              <button type="button" className={`admin-tab-btn ${activeTab === "basic" ? "active" : ""}`} onClick={() => setActiveTab("basic")}>
+                Basic Info
+              </button>
+              <button type="button" className={`admin-tab-btn ${activeTab === "sections" ? "active" : ""}`} onClick={() => setActiveTab("sections")}>
+                Sections {editing.sections.length > 0 && `(${editing.sections.length})`}
+              </button>
+              <button type="button" className={`admin-tab-btn ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("settings")}>
+                Settings
+              </button>
+            </div>
+          )}
+
+          {/* Built-in info note */}
+          {isBuiltIn && (
+            <p style={{ color: "#8b93a3", margin: "0 0 16px" }}>
+              <strong>{editing.title}</strong> is a built-in section managed from its dedicated editor. Use Settings below to control visibility.
+            </p>
+          )}
+
+          {/* Tab: Basic Info */}
+          {!isBuiltIn && activeTab === "basic" && (
+            <>
+              <div className="admin-field">
+                <label>Title</label>
+                <input
+                  value={editing.title}
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    const slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+                    setEditing((p) => p ? { ...p, title, slug } : p);
+                  }}
+                />
               </div>
               <div className="admin-field">
                 <label>Page heading</label>
                 <input value={editing.heading} onChange={(e) => set("heading", e.target.value)} placeholder="Shown at the top of the page" />
               </div>
-              <div className="admin-field">
-                <label>Subtitle</label>
-                <input value={editing.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+              <div className="admin-row">
+                <div className="admin-field">
+                  <label>Subtitle</label>
+                  <input value={editing.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+                </div>
               </div>
               <div className="admin-field">
                 <label>Description (HTML allowed)</label>
                 <textarea rows={4} value={editing.description} onChange={(e) => set("description", e.target.value)} />
               </div>
-            </div>
+            </>
+          )}
 
-            {/* Sections */}
-            <div className="admin-card">
-              <h3 style={{ marginBottom: 14 }}>Content Sections</h3>
-              {editing.sections.map((sec, i) => (
-                <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,.06)", paddingBottom: 16, marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                    <h4 style={{ margin: 0, fontSize: "0.9rem", fontWeight: 600, color: "#8b93a3" }}>Section {i + 1}</h4>
-                    <button
-                      type="button"
-                      className="admin-btn danger"
-                      style={{ padding: "4px 10px", fontSize: "0.8rem", width: "auto" }}
-                      onClick={() => removeSection(i)}
-                    >
-                      Remove Section
-                    </button>
-                  </div>
-                  <div className="admin-field">
-                    <label>Section title</label>
-                    <input value={sec.sectionTitle} onChange={(e) => setSection(i, "sectionTitle", e.target.value)} />
-                  </div>
-                  <div className="admin-field">
-                    <label>Section body (HTML allowed)</label>
-                    <textarea rows={3} value={sec.sectionBody} onChange={(e) => setSection(i, "sectionBody", e.target.value)} />
-                  </div>
-                  <MediaUploader
-                    label="Section image"
-                    value={sec.sectionImage}
-                    folder="portfolio/pages"
-                    onChange={(url) => setSection(i, "sectionImage", url)}
-                  />
-                  <div className="admin-row" style={{ marginTop: 8 }}>
-                    <div className="admin-field">
-                      <label>Image overlay title (optional)</label>
-                      <input value={sec.sectionOverlayTitle || ""} onChange={(e) => setSection(i, "sectionOverlayTitle", e.target.value)} placeholder="Text on image" />
-                    </div>
-                    <div className="admin-field">
-                      <label>Image overlay subtitle (optional)</label>
-                      <input value={sec.sectionOverlaySub || ""} onChange={(e) => setSection(i, "sectionOverlaySub", e.target.value)} placeholder="Subtext on image" />
-                    </div>
-                  </div>
-                  <div className="admin-field" style={{ marginTop: 8 }}>
-                    <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      <input
-                        type="checkbox"
-                        style={{ width: "auto" }}
-                        checked={sec.showOnHomepage ?? false}
-                        onChange={(e) => setSection(i, "showOnHomepage", e.target.checked)}
-                      />
-                      Show this section on homepage
-                    </label>
+          {/* Tab: Sections */}
+          {!isBuiltIn && activeTab === "sections" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+                <button type="button" className="admin-btn" style={{ fontSize: "0.85rem", padding: "6px 12px" }} onClick={addSection}>
+                  + Add section
+                </button>
+              </div>
+              {editing.sections.length === 0 ? (
+                <p style={{ color: "#8b93a3", textAlign: "center", padding: "24px 0", border: "1px dashed #2a3340", borderRadius: 8, margin: 0 }}>
+                  No sections yet. Click "+ Add section" to start building your content.
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {editing.sections.map((sec, i) => {
+                    const isExpanded = expandedIndex === i;
+                    const titleText = sec.sectionTitle ? `Section ${i + 1}: ${sec.sectionTitle}` : `Section ${i + 1} (Untitled)`;
+                    return (
+                      <div key={i} style={{ border: "1px solid #1e2530", borderRadius: 8, overflow: "hidden", backgroundColor: "#11151a" }}>
+                        <div
+                          onClick={() => setExpandedIndex(isExpanded ? null : i)}
+                          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", backgroundColor: isExpanded ? "rgba(0, 222, 255, 0.04)" : "#11151a", borderBottom: isExpanded ? "1px solid #1e2530" : "none", cursor: "pointer", userSelect: "none" }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{ color: "#00deff", transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s ease", display: "inline-block", fontSize: "0.8rem" }}>▶</span>
+                            <span style={{ fontWeight: 600, fontSize: "0.95rem", color: isExpanded ? "#ffffff" : "#aab2c0" }}>{titleText}</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }} onClick={(e) => e.stopPropagation()}>
+                            <button type="button" className="admin-btn ghost" style={{ padding: "3px 8px", fontSize: "0.75rem" }} disabled={i === 0} onClick={() => moveSection(i, -1)} title="Move Up">↑</button>
+                            <button type="button" className="admin-btn ghost" style={{ padding: "3px 8px", fontSize: "0.75rem" }} disabled={i === editing.sections.length - 1} onClick={() => moveSection(i, 1)} title="Move Down">↓</button>
+                            <button type="button" className="admin-btn danger" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={() => removeSection(i)}>Delete</button>
+                          </div>
+                        </div>
+                        {isExpanded && (
+                          <div style={{ padding: 16, backgroundColor: "#161c24" }}>
+                            <div className="admin-field">
+                              <label>Section title</label>
+                              <input
+                                value={sec.sectionTitle}
+                                onChange={(e) => {
+                                  const sectionTitle = e.target.value;
+                                  const sectionSlug = sectionTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+                                  if (!editing) return;
+                                  const updated = editing.sections.map((s, idx) =>
+                                    idx === i ? { ...s, sectionTitle, sectionSlug } : s
+                                  );
+                                  set("sections", updated);
+                                }}
+                                placeholder="Heading of this section"
+                              />
+                            </div>
+                            <div className="admin-field">
+                              <label>Section body (HTML allowed)</label>
+                              <textarea rows={4} value={sec.sectionBody} onChange={(e) => setSection(i, "sectionBody", e.target.value)} placeholder="Main description or content..." />
+                            </div>
+                            <MediaUploader label="Cover image (shown on listing card)" value={sec.sectionImage} folder="portfolio/pages" allowPdf onChange={(url) => setSection(i, "sectionImage", url)} />
+
+                            {/* Multi-file gallery for detail page */}
+                            <div className="admin-field" style={{ marginTop: 8 }}>
+                              <label style={{ fontWeight: 600, fontSize: "0.95rem", color: "#aab2c0", marginBottom: 8, display: "block" }}>
+                                Detail page files ({sec.sectionFiles?.length || 0}) — images, videos, PDFs
+                              </label>
+                              {(sec.sectionFiles || []).length > 0 && (
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, marginBottom: 12 }}>
+                                  {(sec.sectionFiles || []).map((url, fi) => (
+                                    <div key={fi} style={{ position: "relative", borderRadius: 10, overflow: "hidden", background: "#1e2530", border: "1px solid #2a3340", aspectRatio: "4/3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                      {/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url) ? (
+                                        <video src={url} muted style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                                      ) : /\.pdf(\?|$)/i.test(url) || url.includes("/raw/upload/") ? (
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff8095" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                          <span style={{ fontSize: "0.75rem", color: "#aab2c0" }}>PDF</span>
+                                        </div>
+                                      ) : (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={() => setSection(i, "sectionFiles", (sec.sectionFiles || []).filter((_, idx) => idx !== fi))}
+                                        style={{
+                                          position: "absolute", top: 6, right: 6,
+                                          width: 24, height: 24, borderRadius: "50%",
+                                          background: "rgba(0,0,0,0.7)", border: "none",
+                                          color: "#fff", cursor: "pointer",
+                                          display: "flex", alignItems: "center", justifyContent: "center",
+                                          fontSize: 14, lineHeight: 1, fontWeight: 700,
+                                        }}
+                                        title="Remove"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              <MultiFileUploader
+                                folder="portfolio/pages"
+                                onAdd={(urls) => setSection(i, "sectionFiles", [...(sec.sectionFiles || []), ...urls])}
+                              />
+                            </div>
+
+                            <div className="admin-row" style={{ marginTop: 8 }}>
+                              <div className="admin-field">
+                                <label>Image overlay title (optional)</label>
+                                <input value={sec.sectionOverlayTitle || ""} onChange={(e) => setSection(i, "sectionOverlayTitle", e.target.value)} placeholder="Text shown on image hover" />
+                              </div>
+                              <div className="admin-field">
+                                <label>Image overlay subtitle (optional)</label>
+                                <input value={sec.sectionOverlaySub || ""} onChange={(e) => setSection(i, "sectionOverlaySub", e.target.value)} placeholder="Subtext shown on image hover" />
+                              </div>
+                            </div>
+                            <div className="admin-field" style={{ marginTop: 8 }}>
+                              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <input type="checkbox" style={{ width: "auto" }} checked={sec.showOnHomepage ?? false} onChange={(e) => setSection(i, "showOnHomepage", e.target.checked)} />
+                                Show this section on homepage
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Tab: Settings (also shown for built-in pages) */}
+          {(activeTab === "settings" || isBuiltIn) && (
+            <>
+              <div className="admin-field">
+                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input type="checkbox" style={{ width: "auto" }} checked={editing.showInNavbar} onChange={(e) => set("showInNavbar", e.target.checked)} />
+                  Show in navbar
+                </label>
+              </div>
+              {editing.showInNavbar && (
+                <div className="admin-field">
+                  <label>Navbar label (defaults to title)</label>
+                  <input value={editing.navLabel} onChange={(e) => set("navLabel", e.target.value)} placeholder={editing.title || "Page title"} />
+                </div>
+              )}
+              <div className="admin-field">
+                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input type="checkbox" style={{ width: "auto" }} checked={editing.showOnHomepage} onChange={(e) => set("showOnHomepage", e.target.checked)} />
+                  Show on homepage
+                </label>
+              </div>
+              {editing.showOnHomepage && !isBuiltIn && (
+                <div className="admin-field">
+                  <label>Homepage excerpt</label>
+                  <textarea rows={2} value={editing.homepageExcerpt} onChange={(e) => set("homepageExcerpt", e.target.value)} placeholder="Short text shown in the homepage section" />
+                </div>
+              )}
+              {!isBuiltIn && (
+                <div className="admin-field" style={{ marginTop: 16 }}>
+                  <label style={{ fontWeight: 600, marginBottom: 10, display: "block" }}>Sections display mode</label>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    {(["grid", "list"] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => set("displayMode", mode)}
+                        style={{
+                          flex: 1,
+                          padding: "14px 12px",
+                          borderRadius: 10,
+                          border: editing.displayMode === mode ? "2px solid #00deff" : "2px solid #2a3340",
+                          backgroundColor: editing.displayMode === mode ? "rgba(0,222,255,0.06)" : "#11151a",
+                          color: editing.displayMode === mode ? "#00deff" : "#aab2c0",
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 8,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {mode === "grid" ? (
+                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+                          </svg>
+                        ) : (
+                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="5" rx="1" /><rect x="3" y="10" width="18" height="5" rx="1" /><rect x="3" y="17" width="18" height="5" rx="1" />
+                          </svg>
+                        )}
+                        <span style={{ fontWeight: 600, fontSize: "0.85rem", textTransform: "capitalize" }}>{mode}</span>
+                        <span style={{ fontSize: "0.75rem", color: "#6a768a", textAlign: "center" }}>
+                          {mode === "grid" ? "2-column card grid (like Projects)" : "Full-width rows (like Services)"}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ))}
-              <button className="admin-btn ghost" onClick={addSection}>
-                + Add section
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Built-in info note */}
-        {isBuiltIn && (
-          <div className="admin-card">
-            <p style={{ color: "#8b93a3", margin: 0 }}>
-              <strong>{editing.title}</strong> is a built-in section. Content is managed from its dedicated editor
-              {editing.builtInKey === "hero" && " (Hero)"}
-              {editing.builtInKey === "projects" && " (Projects)"}
-              {editing.builtInKey === "competency" && " (Hero → Competency statement)"}
-              {editing.builtInKey === "services" && " (Services)"}
-              {editing.builtInKey === "about" && " (About)"}
-              {editing.builtInKey === "contact" && " (Contact)"}
-              . You can control its visibility and sort order below.
-            </p>
-          </div>
-        )}
-
-        {/* Visibility & ordering — for ALL pages */}
-        <div className="admin-card">
-          <h3 style={{ marginBottom: 14 }}>Visibility &amp; Order</h3>
-          <div className="admin-field">
-            <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input
-                type="checkbox"
-                style={{ width: "auto" }}
-                checked={editing.showInNavbar}
-                onChange={(e) => set("showInNavbar", e.target.checked)}
-              />
-              Show in navbar
-            </label>
-          </div>
-          {editing.showInNavbar && (
-            <div className="admin-field">
-              <label>Navbar label (defaults to title)</label>
-              <input value={editing.navLabel} onChange={(e) => set("navLabel", e.target.value)} placeholder={editing.title || "Page title"} />
-            </div>
+              )}
+            </>
           )}
-          <div className="admin-field">
-            <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input
-                type="checkbox"
-                style={{ width: "auto" }}
-                checked={editing.showOnHomepage}
-                onChange={(e) => set("showOnHomepage", e.target.checked)}
-              />
-              Show on homepage
-            </label>
-          </div>
-          {editing.showOnHomepage && !isBuiltIn && (
-            <div className="admin-field">
-              <label>Homepage excerpt</label>
-              <textarea rows={2} value={editing.homepageExcerpt} onChange={(e) => set("homepageExcerpt", e.target.value)} placeholder="Short text shown in the homepage section" />
-            </div>
-          )}
-          <div className="admin-field">
-            <label>Sort order (lower = first)</label>
-            <input type="number" value={editing.order} onChange={(e) => set("order", Number(e.target.value))} />
-          </div>
         </div>
-
-        {error && <div className="admin-error">{error}</div>}
-        <button className="admin-btn" onClick={save} disabled={saving}>
-          {saving ? "Saving…" : "Save page"}
-        </button>
       </div>
     );
   }

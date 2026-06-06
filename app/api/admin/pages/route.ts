@@ -39,6 +39,8 @@ export async function GET() {
       const bp = BUILT_IN_PAGES.find((b) => b.slug === p.slug);
       const sections = ((p.sections || []) as any[]).map((s) => ({
         ...s,
+        sectionSlug: s.sectionSlug ?? "",
+        sectionFiles: Array.isArray(s.sectionFiles) ? s.sectionFiles : [],
         showOnHomepage: s.showOnHomepage ?? false,
         sectionOverlayTitle: s.sectionOverlayTitle ?? "",
         sectionOverlaySub: s.sectionOverlaySub ?? "",

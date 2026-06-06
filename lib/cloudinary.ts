@@ -21,11 +21,12 @@ export interface UploadResult {
  */
 export function uploadToCloudinary(
   buffer: Buffer,
-  folder = "portfolio"
+  folder = "portfolio",
+  resourceType: "auto" | "image" | "video" | "raw" = "auto"
 ): Promise<UploadResult> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "auto" },
+      { folder, resource_type: resourceType },
       (error, result) => {
         if (error || !result) return reject(error);
         resolve({

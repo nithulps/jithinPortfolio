@@ -16,7 +16,11 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const result = await uploadToCloudinary(buffer, folder);
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const isVideo = file.type.startsWith("video/");
+    const subFolder = isPdf ? "pdfs" : isVideo ? "videos" : "images";
+    const resourceType = isPdf ? "raw" : "auto";
+    const result = await uploadToCloudinary(buffer, `${folder}/${subFolder}`, resourceType);
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Upload failed.";

@@ -12,8 +12,10 @@ const PageSchema = new Schema(
       type: [
         {
           sectionTitle: { type: String, default: "" },
+          sectionSlug: { type: String, default: "" },
           sectionBody: { type: String, default: "" },
           sectionImage: { type: String, default: "" },
+          sectionFiles: { type: [String], default: [] },
           showOnHomepage: { type: Boolean, default: false },
           sectionOverlayTitle: { type: String, default: "" },
           sectionOverlaySub: { type: String, default: "" },

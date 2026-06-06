@@ -102,7 +102,7 @@ export default function AboutEditor() {
           />
         </div>
         <MediaUploader label="Profile image" value={data.image} folder="portfolio/about" onChange={(u) => set("image", u)} />
-        <MediaUploader label="Resume (PDF or link)" value={data.resumeUrl} folder="portfolio/about" onChange={(u) => set("resumeUrl", u)} />
+        <MediaUploader label="Resume (PDF or link)" value={data.resumeUrl} folder="portfolio/about" allowPdf onChange={(u) => set("resumeUrl", u)} />
       </div>
 
       <div className="admin-card">
