@@ -19,6 +19,10 @@ export async function POST(request: Request) {
     const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
     const isVideo = file.type.startsWith("video/");
     const subFolder = isPdf ? "pdfs" : isVideo ? "videos" : "images";
+    // PDFs are stored as raw with an extensionless public_id. Cloudinary
+    // blocks delivery of URLs ending in ".pdf" by default (returns 401), so
+    // the file is served to visitors through /api/resume, which sets the
+    // correct Content-Type and filename.
     const resourceType = isPdf ? "raw" : "auto";
     const result = await uploadToCloudinary(buffer, `${folder}/${subFolder}`, resourceType);
     return NextResponse.json(result);

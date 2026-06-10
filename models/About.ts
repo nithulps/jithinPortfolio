@@ -5,6 +5,7 @@ const AboutSchema = new Schema(
   {
     key: { type: String, default: "main", unique: true }, // always "main"
     name: { type: String, default: "Jithin" },
+    logo: { type: String, default: "" }, // site header logo
     heroPhrases: { type: [String], default: [] }, // rotating hero designation
     heroDescription: { type: String, default: "" },
     headline: { type: String, default: "" }, // about-page big headline

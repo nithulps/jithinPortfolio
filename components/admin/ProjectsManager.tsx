@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import MediaUploader from "@/components/admin/MediaUploader";
 import MultiFileUploader from "@/components/admin/MultiFileUploader";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 interface Project {
   _id?: string;
@@ -52,6 +53,7 @@ export default function ProjectsManager() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"basic" | "media" | "details">("basic");
+  const confirm = useConfirm();
 
   async function load() {
     setLoading(true);
@@ -92,7 +94,14 @@ export default function ProjectsManager() {
   }
 
   async function remove(id?: string) {
-    if (!id || !confirm("Delete this project?")) return;
+    if (!id) return;
+    const ok = await confirm({
+      title: "Delete project",
+      message: "Are you sure you want to delete this project? This can't be undone.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
     load();
   }

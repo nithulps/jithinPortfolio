@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 interface Service {
   _id?: string;
@@ -29,6 +30,7 @@ export default function ServicesManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const confirm = useConfirm();
 
   async function load() {
     setLoading(true);
@@ -65,7 +67,14 @@ export default function ServicesManager() {
   }
 
   async function remove(id?: string) {
-    if (!id || !confirm("Delete this service?")) return;
+    if (!id) return;
+    const ok = await confirm({
+      title: "Delete service",
+      message: "Are you sure you want to delete this service? This can't be undone.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     await fetch(`/api/admin/services/${id}`, { method: "DELETE" });
     load();
   }

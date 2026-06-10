@@ -32,11 +32,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
       <SocialSidebar socials={socials} />
       <StatusBadge text={about?.statusText} />
-      <Header socials={socials} extraNav={extraNav} />
+      <Header logo={about?.logo} socials={socials} extraNav={extraNav} />
 
       {children}
 
-      <Footer heading={about?.footerHeading} subtitle={about?.footerSubtitle} />
+      <Footer heading={about?.footerHeading} subtitle={about?.footerSubtitle} logo={about?.logo} />
       <BackToTop />
       <ClientEffects />
     </>

@@ -97,16 +97,21 @@ export default function Header({
         >
           <div className="logo">
             <Link href="/" onClick={() => setOpen(false)}>
-              <span
-                style={{
-                  fontFamily: "var(--font-wide)",
-                  fontWeight: 800,
-                  fontSize: "1.4rem",
-                  color: "var(--cyan)",
-                }}
-              >
-                J.
-              </span>
+              {logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logo} alt="Jithin logo" />
+              ) : (
+                <span
+                  style={{
+                    fontFamily: "var(--font-wide)",
+                    fontWeight: 800,
+                    fontSize: "1.4rem",
+                    color: "var(--cyan)",
+                  }}
+                >
+                  J.
+                </span>
+              )}
             </Link>
           </div>
           <div />

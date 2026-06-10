@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 interface Message {
   _id: string;
@@ -17,6 +18,7 @@ export default function MessagesInbox() {
   const [items, setItems] = useState<Message[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const confirm = useConfirm();
 
   async function load() {
     setLoading(true);
@@ -38,7 +40,13 @@ export default function MessagesInbox() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this message?")) return;
+    const ok = await confirm({
+      title: "Delete message",
+      message: "Are you sure you want to delete this message? This can't be undone.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     await fetch(`/api/admin/contacts/${id}`, { method: "DELETE" });
     load();
   }

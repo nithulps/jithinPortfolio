@@ -14,9 +14,11 @@ const MESSAGES = [
 export default function Footer({
   heading,
   subtitle,
+  logo,
 }: {
   heading?: string;
   subtitle?: string;
+  logo?: string;
 }) {
   return (
     <footer className="site-footer" id="contact">
@@ -32,6 +34,10 @@ export default function Footer({
       </div>
 
       <div className="footer-cta reveal">
+        {logo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="Jithin logo" className="footer-logo" />
+        )}
         <h2>{heading || "Ready to ship quality software?"}</h2>
         <p>{subtitle || "Tell me about your project and testing needs — let\u2019s discuss and work together!"}</p>
         <Link href="/contact" className="btn-footer">

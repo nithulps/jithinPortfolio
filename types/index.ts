@@ -35,6 +35,7 @@ export interface ServiceDTO {
 export interface AboutDTO {
   _id: string;
   name: string;
+  logo?: string;
   heroPhrases: string[];
   heroDescription: string;
   headline: string;

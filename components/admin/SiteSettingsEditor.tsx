@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import MediaUploader from "@/components/admin/MediaUploader";
 
 interface SectionRow {
   _id: string;
@@ -52,7 +53,11 @@ export default function SiteSettingsEditor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"order" | "visibility" | "security">("order");
+  const [activeTab, setActiveTab] = useState<"order" | "visibility" | "branding" | "security">("order");
+
+  // Branding (logo) state
+  const [logo, setLogo] = useState("");
+  const [savingLogo, setSavingLogo] = useState(false);
 
   // Admin credentials state
   const [newUsername, setNewUsername] = useState("");
@@ -124,6 +129,37 @@ export default function SiteSettingsEditor() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/about");
+        const j = await res.json();
+        setLogo(j.logo || "");
+      } catch {
+        // ignore — logo stays empty
+      }
+    })();
+  }, []);
+
+  async function saveLogo() {
+    setSavingLogo(true);
+    setError("");
+    setSaved(false);
+    try {
+      const res = await fetch("/api/admin/about", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logo }),
+      });
+      if (!res.ok) throw new Error();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError("Could not save logo.");
+    }
+    setSavingLogo(false);
+  }
+
   function move(index: number, direction: -1 | 1) {
     const next = index + direction;
     if (next < 0 || next >= rows.length) return;
@@ -189,12 +225,20 @@ export default function SiteSettingsEditor() {
         </div>
         <button
           className="admin-btn"
-          onClick={() => activeTab === "security" ? credFormRef.current?.requestSubmit() : saveOrder()}
-          disabled={saving || updatingCreds}
+          onClick={() =>
+            activeTab === "security"
+              ? credFormRef.current?.requestSubmit()
+              : activeTab === "branding"
+                ? saveLogo()
+                : saveOrder()
+          }
+          disabled={saving || updatingCreds || savingLogo}
         >
           {activeTab === "security"
             ? (updatingCreds ? "Updating…" : "Update Credentials")
-            : (saving ? "Saving…" : "Save changes")}
+            : activeTab === "branding"
+              ? (savingLogo ? "Saving…" : "Save logo")
+              : (saving ? "Saving…" : "Save changes")}
         </button>
       </div>
 
@@ -213,6 +257,13 @@ export default function SiteSettingsEditor() {
           onClick={() => setActiveTab("visibility")}
         >
           Section Visibility
+        </button>
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === "branding" ? "active" : ""}`}
+          onClick={() => setActiveTab("branding")}
+        >
+          Branding
         </button>
         <button
           type="button"
@@ -372,7 +423,26 @@ export default function SiteSettingsEditor() {
         </div>
       )}
 
-      {/* Tab 3: Admin Credentials */}
+      {/* Tab 3: Branding */}
+      {activeTab === "branding" && (
+        <div className="admin-card">
+          <h3 style={{ marginBottom: 6, fontSize: "1rem", fontWeight: 700 }}>
+            Site Logo
+          </h3>
+          <p style={{ color: "#8b93a3", fontSize: "0.85rem", marginBottom: 18 }}>
+            Upload the logo shown in the site header. Leave empty to use the default
+            &ldquo;J.&rdquo; text mark. Save logo after uploading.
+          </p>
+          <MediaUploader
+            label="Header logo"
+            value={logo}
+            onChange={setLogo}
+            folder="branding"
+          />
+        </div>
+      )}
+
+      {/* Tab 4: Admin Credentials */}
       {activeTab === "security" && (
         <div className="admin-card">
           <h3 style={{ marginBottom: 6, fontSize: "1rem", fontWeight: 700 }}>

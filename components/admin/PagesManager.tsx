@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import MediaUploader from "@/components/admin/MediaUploader";
 import MultiFileUploader from "@/components/admin/MultiFileUploader";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 interface Section {
   sectionTitle: string;
@@ -64,6 +65,7 @@ export default function PagesManager() {
   const [saving, setSaving] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [activeTab, setActiveTab] = useState<"basic" | "sections" | "settings">("basic");
+  const confirm = useConfirm();
 
   async function load() {
     setLoading(true);
@@ -153,7 +155,14 @@ export default function PagesManager() {
   }
 
   async function remove(id?: string) {
-    if (!id || !confirm("Delete this page?")) return;
+    if (!id) return;
+    const ok = await confirm({
+      title: "Delete page",
+      message: "Are you sure you want to delete this page? This can't be undone.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/admin/pages/${id}`, { method: "DELETE" });
       if (!res.ok) {

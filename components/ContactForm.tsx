@@ -31,23 +31,13 @@ export default function ContactForm() {
     }
   }
 
-  if (status === "ok") {
-    return (
-      <div className="contact-form-panel">
-        <h2 style={{ color: "var(--cyan)" }}>Thank you!</h2>
-        <p style={{ color: "var(--text-gray)" }}>
-          Your message has been received. I&apos;ll get back to you soon.
-        </p>
-        <button className="form-submit-btn" onClick={() => setStatus("idle")} style={{ marginTop: 20 }}>
-          Send another
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="contact-form-panel">
-      <form className="contact-form" onSubmit={handleSubmit}>
+      <form
+        className="contact-form"
+        onSubmit={handleSubmit}
+        onInput={() => status === "ok" && setStatus("idle")}
+      >
         <div className="form-group">
           <label htmlFor="name">Name</label>
           <input className="form-input" id="name" name="name" required />
@@ -84,6 +74,18 @@ export default function ContactForm() {
         <button className="form-submit-btn" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending…" : "Send message"}
         </button>
+
+        {status === "ok" && (
+          <div className="form-success" role="status" aria-live="polite">
+            <span className="form-success-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+            </span>
+            <div>
+              <strong>Message delivered!</strong>
+              <p>Thank you — I&apos;ll get back to you as soon as possible.</p>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

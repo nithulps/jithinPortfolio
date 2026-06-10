@@ -13,6 +13,8 @@ export const dynamic = "force-dynamic";
 /* ── Built-in section renderers ── */
 
 function HeroSection({ about }: { about: AboutDTO | null }) {
+  // Downloads via our proxy route so it saves as a properly named PDF.
+  const resumeHref = about?.resumeUrl ? "/api/resume" : "";
   return (
     <section className="hero">
       <HeroBackground />
@@ -26,9 +28,16 @@ function HeroSection({ about }: { about: AboutDTO | null }) {
         {about?.heroDescription ||
           "I deliver comprehensive software testing solutions — from manual QA to full automation frameworks."}
       </p>
-      <Link href="/contact" className="btn-hero reveal">
-        Start a project
-      </Link>
+      {resumeHref ? (
+        <a href={resumeHref} className="btn-hero reveal" download>
+          <i className="fas fa-download" style={{ marginRight: 10 }} />
+          Download Resume
+        </a>
+      ) : (
+        <Link href="/contact" className="btn-hero reveal">
+          Start a project
+        </Link>
+      )}
       <div className="scroll-indicator">
         <span>Scroll</span>
         <div className="scroll-mouse">
@@ -81,7 +90,7 @@ function ServicesSection({ services }: { services: ServiceDTO[] }) {
           Learn more
         </Link>
       </div>
-      <ScrollRevealRow className="services-grid">
+      <ScrollRevealRow className="services-grid" start={0.6} end={0.22}>
         {services.map((s) => (
           <ServiceCard key={s._id} service={s} />
         ))}

@@ -83,10 +83,16 @@ export default function CompetencyText({
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight || document.documentElement.clientHeight;
 
-      // progress 0 -> 1 as the block sweeps up through the viewport.
-      const start = vh * 0.78; // begin only once the block has risen up from the bottom
-      const end = vh * 0.30; // fully revealed when the top reaches the upper third
-      let p = (start - rect.top) / (start - end);
+      // Track the block's vertical center so the reveal is anchored to where
+      // the section sits relative to the middle of the screen.
+      const center = rect.top + rect.height / 2;
+
+      // progress 0 -> 1 as the block's center rises toward the screen center.
+      // A wide start..end window spreads the reveal over more scroll distance,
+      // so the sweep feels slower / more gradual as you scroll.
+      const start = vh * 1.2; // begin early, while the block is still entering from below
+      const end = vh * 0.45; // fully revealed just past the screen center
+      let p = (start - center) / (start - end);
       p = Math.max(0, Math.min(1, p));
 
       const head = p * (N + SPREAD); // leading edge of the reveal
