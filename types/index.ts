@@ -68,7 +68,8 @@ export interface PageDTO {
   subtitle: string;
   description: string;
   image: string;
-  sections: { sectionTitle: string; sectionSlug: string; sectionBody: string; sectionImage: string; sectionFiles: string[]; showOnHomepage: boolean; sectionOverlayTitle: string; sectionOverlaySub: string }[];
+  categories: { key: string; name: string; coverImage: string; overlayTitle: string; overlaySubtitle: string }[];
+  sections: { sectionTitle: string; sectionSlug: string; sectionBody: string; sectionImage: string; sectionFiles: string[]; showOnHomepage: boolean; sectionOverlayTitle: string; sectionOverlaySub: string; categoryKey: string }[];
   showInNavbar: boolean;
   navLabel: string;
   showOnHomepage: boolean;

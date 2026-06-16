@@ -4,7 +4,7 @@ import { getProjects } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Projects — Jithin" };
+export const metadata = { title: "Projects - Jithin" };
 
 export default async function ProjectsPage() {
   const projects = await getProjects();

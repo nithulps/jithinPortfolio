@@ -14,6 +14,15 @@ interface Section {
   showOnHomepage: boolean;
   sectionOverlayTitle: string;
   sectionOverlaySub: string;
+  categoryKey: string;
+}
+
+interface Category {
+  key: string;
+  name: string;
+  coverImage: string;
+  overlayTitle: string;
+  overlaySubtitle: string;
 }
 
 interface PageItem {
@@ -24,6 +33,7 @@ interface PageItem {
   subtitle: string;
   description: string;
   image: string;
+  categories: Category[];
   sections: Section[];
   showInNavbar: boolean;
   navLabel: string;
@@ -36,7 +46,15 @@ interface PageItem {
   gridColumns: 2 | 3;
 }
 
-const EMPTY_SECTION: Section = { sectionTitle: "", sectionSlug: "", sectionBody: "", sectionImage: "", sectionFiles: [], showOnHomepage: false, sectionOverlayTitle: "", sectionOverlaySub: "" };
+const EMPTY_SECTION: Section = { sectionTitle: "", sectionSlug: "", sectionBody: "", sectionImage: "", sectionFiles: [], showOnHomepage: false, sectionOverlayTitle: "", sectionOverlaySub: "", categoryKey: "" };
+
+const EMPTY_CATEGORY: Category = { key: "", name: "", coverImage: "", overlayTitle: "", overlaySubtitle: "" };
+
+function genKey() {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
 
 const EMPTY: PageItem = {
   title: "",
@@ -45,6 +63,7 @@ const EMPTY: PageItem = {
   subtitle: "",
   description: "",
   image: "",
+  categories: [],
   sections: [],
   showInNavbar: false,
   navLabel: "",
@@ -63,8 +82,10 @@ export default function PagesManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedNote, setSavedNote] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
-  const [activeTab, setActiveTab] = useState<"basic" | "sections" | "settings">("basic");
+  const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"basic" | "categories" | "sections" | "settings">("basic");
   const confirm = useConfirm();
 
   async function load() {
@@ -101,6 +122,42 @@ export default function PagesManager() {
     const newIndex = editing.sections.length;
     set("sections", [...editing.sections, { ...EMPTY_SECTION }]);
     setExpandedIndex(newIndex);
+  }
+
+  function setCategory(index: number, key: keyof Category, val: string) {
+    if (!editing) return;
+    const updated = (editing.categories || []).map((c, i) =>
+      i === index ? { ...c, [key]: val } : c
+    );
+    set("categories", updated);
+  }
+
+  function addCategory() {
+    if (!editing) return;
+    const newIndex = (editing.categories || []).length;
+    set("categories", [
+      ...(editing.categories || []),
+      { ...EMPTY_CATEGORY, key: genKey() },
+    ]);
+    setExpandedCategory(newIndex);
+  }
+
+  function removeCategory(index: number) {
+    if (!editing) return;
+    const cat = (editing.categories || [])[index];
+    const updatedCats = (editing.categories || []).filter((_, i) => i !== index);
+    // Unmap any sections that pointed to this category
+    const updatedSections = editing.sections.map((s) =>
+      cat && s.categoryKey === cat.key ? { ...s, categoryKey: "" } : s
+    );
+    setEditing((p) =>
+      p ? { ...p, categories: updatedCats, sections: updatedSections } : p
+    );
+    if (expandedCategory === index) {
+      setExpandedCategory(null);
+    } else if (expandedCategory !== null && expandedCategory > index) {
+      setExpandedCategory(expandedCategory - 1);
+    }
   }
 
   function removeSection(index: number) {
@@ -151,6 +208,45 @@ export default function PagesManager() {
     } else {
       const j = await res.json().catch(() => ({}));
       setError(j.error || "Could not save.");
+    }
+  }
+
+  // Save the page (including categories) without leaving the editor.
+  async function saveAndStay() {
+    if (!editing) return;
+    if (!editing.title.trim()) {
+      setActiveTab("basic");
+      setError("Add a page title (Basic Info) before saving.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    const isNew = !editing._id;
+    try {
+      const res = await fetch(
+        isNew ? "/api/admin/pages" : `/api/admin/pages/${editing._id}`,
+        {
+          method: isNew ? "POST" : "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editing),
+        }
+      );
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setError(j.error || "Could not save.");
+        return;
+      }
+      const doc = await res.json().catch(() => null);
+      if (isNew && doc?._id) {
+        setEditing((p) => (p ? { ...p, _id: doc._id } : p));
+      }
+      setSavedNote(true);
+      setTimeout(() => setSavedNote(false), 2500);
+      load();
+    } catch {
+      setError("Could not save.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -208,6 +304,9 @@ export default function PagesManager() {
               <button type="button" className={`admin-tab-btn ${activeTab === "basic" ? "active" : ""}`} onClick={() => setActiveTab("basic")}>
                 Basic Info
               </button>
+              <button type="button" className={`admin-tab-btn ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
+                Categories {(editing.categories?.length ?? 0) > 0 && `(${editing.categories.length})`}
+              </button>
               <button type="button" className={`admin-tab-btn ${activeTab === "sections" ? "active" : ""}`} onClick={() => setActiveTab("sections")}>
                 Sections {editing.sections.length > 0 && `(${editing.sections.length})`}
               </button>
@@ -255,6 +354,92 @@ export default function PagesManager() {
             </>
           )}
 
+          {/* Tab: Categories */}
+          {!isBuiltIn && activeTab === "categories" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <p style={{ color: "#8b93a3", margin: 0, fontSize: "0.9rem" }}>
+                  Group sections under categories. Each category has its own cover and overlay text. Map sections to a category from the Sections tab.
+                </p>
+                <button type="button" className="admin-btn" style={{ fontSize: "0.85rem", padding: "6px 12px", flexShrink: 0 }} onClick={addCategory}>
+                  + Add category
+                </button>
+              </div>
+              {(editing.categories?.length ?? 0) === 0 ? (
+                <p style={{ color: "#8b93a3", textAlign: "center", padding: "24px 0", border: "1px dashed #2a3340", borderRadius: 8, margin: 0 }}>
+                  No categories yet. Click &ldquo;+ Add category&rdquo; to create one.
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {editing.categories.map((cat, i) => {
+                    const isExpanded = expandedCategory === i;
+                    const titleText = cat.name ? cat.name : `Category ${i + 1} (Untitled)`;
+                    return (
+                      <div key={cat.key || i} style={{ border: "1px solid #1e2530", borderRadius: 8, overflow: "hidden", backgroundColor: "#11151a" }}>
+                        <div
+                          onClick={() => setExpandedCategory(isExpanded ? null : i)}
+                          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", backgroundColor: isExpanded ? "rgba(0, 222, 255, 0.04)" : "#11151a", borderBottom: isExpanded ? "1px solid #1e2530" : "none", cursor: "pointer", userSelect: "none" }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                            <span style={{ color: "#00deff", transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s ease", display: "inline-block", fontSize: "0.8rem" }}>▶</span>
+                            <span style={{ fontWeight: 600, fontSize: "0.95rem", color: isExpanded ? "#ffffff" : "#aab2c0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{titleText}</span>
+                            {cat.coverImage && (
+                              <span style={{ fontSize: "0.7rem", color: "#6a768a", flexShrink: 0 }}>• cover set</span>
+                            )}
+                          </div>
+                          <div onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0 }}>
+                            <button type="button" className="admin-btn danger" style={{ padding: "4px 10px", fontSize: "0.75rem" }} onClick={() => removeCategory(i)}>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        {isExpanded && (
+                          <div style={{ padding: 16, backgroundColor: "#161c24" }}>
+                            <div className="admin-field">
+                              <label>Category name</label>
+                              <input value={cat.name} onChange={(e) => setCategory(i, "name", e.target.value)} placeholder="e.g. Web Apps" />
+                            </div>
+                            <MediaUploader
+                              label="Cover image / video / PDF"
+                              value={cat.coverImage}
+                              folder="portfolio/pages"
+                              allowPdf
+                              onChange={(url) => setCategory(i, "coverImage", url)}
+                            />
+                            <div className="admin-row">
+                              <div className="admin-field">
+                                <label>Image overlay title (optional — shown on cover image)</label>
+                                <input value={cat.overlayTitle} onChange={(e) => setCategory(i, "overlayTitle", e.target.value)} placeholder="Shown on cover" />
+                              </div>
+                              <div className="admin-field">
+                                <label>Image overlay subtitle (optional)</label>
+                                <input value={cat.overlaySubtitle} onChange={(e) => setCategory(i, "overlaySubtitle", e.target.value)} placeholder="Subtext on cover" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {(editing.categories?.length ?? 0) > 0 && (
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12, marginTop: 20 }}>
+                  {savedNote && (
+                    <span style={{ color: "#4ade80", fontSize: "0.88rem", display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                      Categories saved
+                    </span>
+                  )}
+                  <button type="button" className="admin-btn" onClick={saveAndStay} disabled={saving}>
+                    {saving ? "Saving…" : "Save categories"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
           {/* Tab: Sections */}
           {!isBuiltIn && activeTab === "sections" && (
             <>
@@ -290,21 +475,42 @@ export default function PagesManager() {
                         </div>
                         {isExpanded && (
                           <div style={{ padding: 16, backgroundColor: "#161c24" }}>
-                            <div className="admin-field">
-                              <label>Section title</label>
-                              <input
-                                value={sec.sectionTitle}
-                                onChange={(e) => {
-                                  const sectionTitle = e.target.value;
-                                  const sectionSlug = sectionTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-                                  if (!editing) return;
-                                  const updated = editing.sections.map((s, idx) =>
-                                    idx === i ? { ...s, sectionTitle, sectionSlug } : s
-                                  );
-                                  set("sections", updated);
-                                }}
-                                placeholder="Heading of this section"
-                              />
+                            <div className="admin-row">
+                              <div className="admin-field">
+                                <label>Category</label>
+                                <select
+                                  value={sec.categoryKey || ""}
+                                  onChange={(e) => setSection(i, "categoryKey", e.target.value)}
+                                >
+                                  <option value="">— No category —</option>
+                                  {(editing.categories || []).map((cat, ci) => (
+                                    <option key={cat.key || ci} value={cat.key}>
+                                      {cat.name || `Category ${ci + 1}`}
+                                    </option>
+                                  ))}
+                                </select>
+                                {(editing.categories?.length ?? 0) === 0 && (
+                                  <span style={{ fontSize: "0.78rem", color: "#6a768a", marginTop: 4 }}>
+                                    Add categories in the Categories tab to map this section.
+                                  </span>
+                                )}
+                              </div>
+                              <div className="admin-field">
+                                <label>Section title</label>
+                                <input
+                                  value={sec.sectionTitle}
+                                  onChange={(e) => {
+                                    const sectionTitle = e.target.value;
+                                    const sectionSlug = sectionTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+                                    if (!editing) return;
+                                    const updated = editing.sections.map((s, idx) =>
+                                      idx === i ? { ...s, sectionTitle, sectionSlug } : s
+                                    );
+                                    set("sections", updated);
+                                  }}
+                                  placeholder="Heading of this section"
+                                />
+                              </div>
                             </div>
                             <div className="admin-field">
                               <label>Section body (HTML allowed)</label>

@@ -12,7 +12,7 @@ import Lenis from "lenis";
 export default function ClientEffects() {
   const pathname = usePathname();
 
-  // Smooth scroll — set up once.
+  // Smooth scroll - set up once.
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,

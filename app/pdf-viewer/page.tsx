@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
-// Served from public/ — exact version match with the bundled pdfjs-dist (avoids CDN mismatch)
+// Served from public/ - exact version match with the bundled pdfjs-dist (avoids CDN mismatch)
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 function PdfViewerInner() {
@@ -16,10 +16,49 @@ function PdfViewerInner() {
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sidebarWidth] = useState(260);
+  const [pageWidth, setPageWidth] = useState(800);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const onDocumentLoad = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
     setCurrentPage(1);
+    pageRefs.current = new Array(numPages).fill(null);
+  }, []);
+
+  // Responsive page width for the main view.
+  useEffect(() => {
+    const update = () =>
+      setPageWidth(Math.min(900, window.innerWidth - sidebarWidth - 80));
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [sidebarWidth]);
+
+  // Track which page is most visible so the toolbar + thumbnails stay in sync.
+  useEffect(() => {
+    if (!numPages) return;
+    const root = scrollRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          const p = Number((visible.target as HTMLElement).dataset.page);
+          if (p) setCurrentPage(p);
+        }
+      },
+      { root, threshold: [0.25, 0.5, 0.75] }
+    );
+    pageRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [numPages]);
+
+  const scrollToPage = useCallback((page: number) => {
+    const el = pageRefs.current[page - 1];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   if (!url) {
@@ -63,7 +102,7 @@ function PdfViewerInner() {
           {numPages > 0 && Array.from({ length: numPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              onClick={() => setCurrentPage(page)}
+              onClick={() => scrollToPage(page)}
               style={{
                 background: "none",
                 border: currentPage === page ? "2px solid #00deff" : "2px solid #1e2530",
@@ -122,7 +161,7 @@ function PdfViewerInner() {
           flexShrink: 0,
         }}>
           <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => scrollToPage(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
             style={{ background: "none", border: "1px solid #2a3340", color: "#e7e9ee", borderRadius: 6, padding: "4px 12px", cursor: "pointer", fontSize: "0.9rem", opacity: currentPage <= 1 ? 0.4 : 1 }}
           >
@@ -132,7 +171,7 @@ function PdfViewerInner() {
             Page <strong style={{ color: "#e7e9ee" }}>{currentPage}</strong> of <strong style={{ color: "#e7e9ee" }}>{numPages}</strong>
           </span>
           <button
-            onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
+            onClick={() => scrollToPage(Math.min(numPages, currentPage + 1))}
             disabled={currentPage >= numPages}
             style={{ background: "none", border: "1px solid #2a3340", color: "#e7e9ee", borderRadius: 6, padding: "4px 12px", cursor: "pointer", fontSize: "0.9rem", opacity: currentPage >= numPages ? 0.4 : 1 }}
           >
@@ -140,8 +179,8 @@ function PdfViewerInner() {
           </button>
         </div>
 
-        {/* PDF page display */}
-        <div style={{ flex: 1, overflowY: "auto", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "32px 24px" }}>
+        {/* PDF page display — all pages, continuous scroll */}
+        <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "32px 24px" }}>
           <Document
             file={url}
             onLoadSuccess={onDocumentLoad}
@@ -157,17 +196,28 @@ function PdfViewerInner() {
               </div>
             }
           >
-            <Page
-              pageNumber={currentPage}
-              width={Math.min(900, typeof window !== "undefined" ? window.innerWidth - sidebarWidth - 80 : 800)}
-              renderAnnotationLayer
-              renderTextLayer
-              loading={
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 600 }}>
-                  <div style={{ width: 32, height: 32, border: "3px solid #2a3340", borderTopColor: "#00deff", borderRadius: "50%", animation: "pdf-spin 0.8s linear infinite" }} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+              {numPages > 0 && Array.from({ length: numPages }, (_, i) => i + 1).map((page) => (
+                <div
+                  key={page}
+                  data-page={page}
+                  ref={(el) => { pageRefs.current[page - 1] = el; }}
+                  style={{ scrollMarginTop: 16, boxShadow: "0 8px 30px -10px rgba(0,0,0,0.6)", borderRadius: 4, overflow: "hidden" }}
+                >
+                  <Page
+                    pageNumber={page}
+                    width={pageWidth}
+                    renderAnnotationLayer
+                    renderTextLayer
+                    loading={
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 600, width: pageWidth, background: "#fff" }}>
+                        <div style={{ width: 32, height: 32, border: "3px solid #2a3340", borderTopColor: "#00deff", borderRadius: "50%", animation: "pdf-spin 0.8s linear infinite" }} />
+                      </div>
+                    }
+                  />
                 </div>
-              }
-            />
+              ))}
+            </div>
           </Document>
         </div>
       </main>

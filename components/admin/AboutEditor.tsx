@@ -94,7 +94,7 @@ export default function AboutEditor() {
           />
         </div>
         <div className="admin-field">
-          <label>Bio paragraphs (one paragraph per line — HTML like &lt;b&gt; allowed)</label>
+          <label>Bio paragraphs (one paragraph per line - HTML like &lt;b&gt; allowed)</label>
           <textarea
             rows={5}
             value={data.bioParagraphs.join("\n")}

@@ -12,8 +12,9 @@ const DEFAULT_NAV = [
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === "/projects") return pathname.startsWith("/projects");
-  return pathname === href;
+  if (href === "/") return pathname === "/";
+  // Highlight the parent nav item on its sub-pages too (e.g. detail pages).
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export default function Header({

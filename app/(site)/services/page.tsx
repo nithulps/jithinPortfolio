@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServices } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Services — Jithin" };
+export const metadata = { title: "Services - Jithin" };
 
 const CHECK = (
   <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -77,7 +77,7 @@ export default async function ServicesPage() {
         ))}
         {services.length === 0 && (
           <p style={{ color: "var(--text-gray)", padding: "60px 0" }}>
-            No services yet — add some in the admin panel.
+            No services yet - add some in the admin panel.
           </p>
         )}
       </div>

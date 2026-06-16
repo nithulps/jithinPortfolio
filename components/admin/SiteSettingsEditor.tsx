@@ -99,7 +99,7 @@ export default function SiteSettingsEditor() {
       setCredSuccess("Credentials updated successfully! Redirecting to login...");
       setNewUsername("");
       setNewPassword("");
-      
+
       setTimeout(() => {
         window.location.href = "/admin/login";
       }, 2000);
@@ -136,7 +136,7 @@ export default function SiteSettingsEditor() {
         const j = await res.json();
         setLogo(j.logo || "");
       } catch {
-        // ignore — logo stays empty
+        // ignore - logo stays empty
       }
     })();
   }, []);
@@ -287,7 +287,7 @@ export default function SiteSettingsEditor() {
             Use ↑ ↓ to reorder how sections appear on the homepage. <strong>Hero</strong> is always first and pinned.
           </p>
 
-          {/* Hero — always pinned first */}
+          {/* Hero - always pinned first */}
           <div style={{ ...getRowStyle(false), opacity: 0.45 }}>
             <div style={{ minWidth: 72 }}>
               <span style={badgeStyle("#1a2030", "#8b93a3")}>Built-in</span>
@@ -295,7 +295,7 @@ export default function SiteSettingsEditor() {
             <div style={{ flex: 1 }}>
               <span style={{ fontWeight: 600 }}>Hero</span>
               <span style={{ color: "#8b93a3", fontSize: "0.8rem", marginLeft: 8 }}>
-                (always first — pinned)
+                (always first - pinned)
               </span>
             </div>
             <div style={{ color: "#8b93a3", fontSize: "0.82rem", minWidth: 40, textAlign: "center" }}>
@@ -466,7 +466,7 @@ export default function SiteSettingsEditor() {
                 required
               />
             </div>
-            
+
             <div className="admin-field">
               <label style={{ fontWeight: 600 }}>New Password</label>
               <div style={{ position: "relative" }}>

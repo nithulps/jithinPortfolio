@@ -97,7 +97,7 @@ export default function ContactEditor() {
           />
         </div>
         <div className="admin-field">
-          <label>Info panel paragraphs (one paragraph per line — HTML like &lt;em&gt; allowed)</label>
+          <label>Info panel paragraphs (one paragraph per line - HTML like &lt;em&gt; allowed)</label>
           <textarea
             rows={5}
             value={contact.infoParagraphs.join("\n")}

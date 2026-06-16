@@ -39,15 +39,27 @@ export async function GET() {
       const bp = BUILT_IN_PAGES.find((b) => b.slug === p.slug);
       const sections = ((p.sections || []) as any[]).map((s) => ({
         ...s,
+        sectionTitle: s.sectionTitle ?? "",
         sectionSlug: s.sectionSlug ?? "",
+        sectionBody: s.sectionBody ?? "",
+        sectionImage: s.sectionImage ?? "",
         sectionFiles: Array.isArray(s.sectionFiles) ? s.sectionFiles : [],
         showOnHomepage: s.showOnHomepage ?? false,
         sectionOverlayTitle: s.sectionOverlayTitle ?? "",
         sectionOverlaySub: s.sectionOverlaySub ?? "",
+        categoryKey: s.categoryKey ?? "",
+      }));
+      const categories = ((p.categories || []) as any[]).map((c) => ({
+        key: c.key ?? "",
+        name: c.name ?? "",
+        coverImage: c.coverImage ?? "",
+        overlayTitle: c.overlayTitle ?? "",
+        overlaySubtitle: c.overlaySubtitle ?? "",
       }));
       return {
         ...p,
         sections,
+        categories,
         displayMode: p.displayMode || "grid",
         gridColumns: p.gridColumns || 2,
         builtIn: !!bp,

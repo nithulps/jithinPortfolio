@@ -3,7 +3,7 @@ import RotatingText from "@/components/RotatingText";
 import { getAbout } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "About — Jithin" };
+export const metadata = { title: "About - Jithin" };
 
 export default async function AboutPage() {
   const about = await getAbout();

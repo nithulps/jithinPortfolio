@@ -128,13 +128,13 @@ const about = {
   name: "JITHIN",
   heroPhrases: ["MANUAL & AUTOMATION", "API & PERFORMANCE", "SELENIUM & CYPRESS"],
   heroDescription:
-    "I deliver comprehensive software testing solutions — from manual QA to full automation frameworks. I help teams build reliable, bug-free products with confidence through systematic testing and quality assurance.",
+    "I deliver comprehensive software testing solutions - from manual QA to full automation frameworks. I help teams build reliable, bug-free products with confidence through systematic testing and quality assurance.",
   headline:
     "Hello! I'm Jithin and I'm a Software Test Engineer and QA Specialist passionate about quality. I love to test",
   aboutPhrases: ["and automate.", "and optimize.", "and deliver quality."],
   bioParagraphs: [
     "My journey in software testing started with a deep curiosity for <b>how things break</b>. Over the years, I've developed expertise in <b>manual testing, test automation, and performance engineering</b>. I specialize in building robust testing frameworks using <b>Selenium, Cypress, and Playwright</b>.",
-    "With experience across <b>e-commerce, fintech, healthcare, and SaaS</b> domains, I bring a thorough, detail-oriented approach to every project. I believe great software isn't just about features — it's about <b>reliability, performance, and user trust</b>.",
+    "With experience across <b>e-commerce, fintech, healthcare, and SaaS</b> domains, I bring a thorough, detail-oriented approach to every project. I believe great software isn't just about features - it's about <b>reliability, performance, and user trust</b>.",
   ],
   image: "https://aerukart.com/wp-content/uploads/2025/10/DOOMIN_PARK-scaled.webp",
   resumeUrl: "",

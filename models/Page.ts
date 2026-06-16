@@ -8,6 +8,21 @@ const PageSchema = new Schema(
     subtitle: { type: String, default: "" },
     description: { type: String, default: "" },
     image: { type: String, default: "" },
+    // Categories group sections on the page. Each has its own cover media
+    // and overlay text (same UI as a project cover).
+    categories: {
+      type: [
+        {
+          _id: false,
+          key: { type: String, default: "" }, // stable id, referenced by sections
+          name: { type: String, default: "" },
+          coverImage: { type: String, default: "" }, // image / video / PDF
+          overlayTitle: { type: String, default: "" },
+          overlaySubtitle: { type: String, default: "" },
+        },
+      ],
+      default: [],
+    },
     sections: {
       type: [
         {
@@ -19,6 +34,7 @@ const PageSchema = new Schema(
           showOnHomepage: { type: Boolean, default: false },
           sectionOverlayTitle: { type: String, default: "" },
           sectionOverlaySub: { type: String, default: "" },
+          categoryKey: { type: String, default: "" }, // which category this maps to
         },
       ],
       default: [],

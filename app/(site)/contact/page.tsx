@@ -3,7 +3,7 @@ import ContactForm from "@/components/ContactForm";
 import { getAbout } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Contact — Jithin" };
+export const metadata = { title: "Contact - Jithin" };
 
 export default async function ContactPage() {
   const about = await getAbout();
@@ -17,9 +17,9 @@ export default async function ContactPage() {
     contact?.infoParagraphs && contact.infoParagraphs.length
       ? contact.infoParagraphs
       : [
-          "Tell me about your product and testing needs. Whether it's manual QA, an automation framework, or performance testing — I'm here to help you ship with confidence.",
-          "<em>Fill out the form and I'll get back to you as soon as possible.</em>",
-        ];
+        "Tell me about your product and testing needs. Whether it's manual QA, an automation framework, or performance testing - I'm here to help you ship with confidence.",
+        "<em>Fill out the form and I'll get back to you as soon as possible.</em>",
+      ];
 
   const hasSocials =
     !!(socials && (socials.linkedin || socials.github || socials.twitter || socials.instagram));

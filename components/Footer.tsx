@@ -39,7 +39,7 @@ export default function Footer({
           <img src={logo} alt="Jithin logo" className="footer-logo" />
         )}
         <h2>{heading || "Ready to ship quality software?"}</h2>
-        <p>{subtitle || "Tell me about your project and testing needs — let\u2019s discuss and work together!"}</p>
+        <p>{subtitle || "Tell me about your project and testing needs - let\u2019s discuss and work together!"}</p>
         <Link href="/contact" className="btn-footer">
           Start a project
         </Link>

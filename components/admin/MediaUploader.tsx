@@ -4,13 +4,13 @@ import { useState, useRef } from "react";
 
 export default function MediaUploader({
   label,
-  value,
+  value = "",
   onChange,
   folder = "portfolio",
   allowPdf = false,
 }: {
   label: string;
-  value: string;
+  value?: string;
   onChange: (url: string) => void;
   folder?: string;
   allowPdf?: boolean;

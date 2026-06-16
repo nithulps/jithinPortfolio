@@ -134,7 +134,7 @@ export default function MultiFileUploader({
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
             <span style={{ fontSize: "0.9rem", color: "#e7e9ee" }}>
-              {label} — <span style={{ color: "#00deff", fontWeight: 500 }}>browse</span> or drag & drop
+              {label} - <span style={{ color: "#00deff", fontWeight: 500 }}>browse</span> or drag & drop
             </span>
             <span style={{ fontSize: "0.78rem", color: "#6a768a" }}>
               Select multiple files at once · images, videos, PDFs

@@ -86,7 +86,7 @@ export default function HeroEditor() {
           <textarea rows={3} value={data.heroDescription} onChange={(e) => set("heroDescription", e.target.value)} />
         </div>
         <div className="admin-field">
-          <label>Competency statement (HTML allowed — wrap highlights in &lt;span class=&quot;gradient-text&quot;&gt;…&lt;/span&gt;)</label>
+          <label>Competency statement (HTML allowed - wrap highlights in &lt;span class=&quot;gradient-text&quot;&gt;…&lt;/span&gt;)</label>
           <textarea rows={3} value={data.competencyText} onChange={(e) => set("competencyText", e.target.value)} />
         </div>
         <div className="admin-field">

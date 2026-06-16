@@ -19,7 +19,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <div className="cur" id="cur" />
 
       <div className="bg-video-container">
-        {/* Decorative background loop — replace with your own Cloudinary video via the admin if desired */}
+        {/* Decorative background loop - replace with your own Cloudinary video via the admin if desired */}
         <video
           src="https://aerukart.com/wp-content/uploads/2025/10/AERUK-BG-ANIM.webm"
           autoPlay

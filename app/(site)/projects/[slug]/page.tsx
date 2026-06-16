@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const project = await getProject(params.slug);
-  return { title: project ? `${project.title} — Jithin` : "Project — Jithin" };
+  return { title: project ? `${project.title} - Jithin` : "Project - Jithin" };
 }
 
 function isVideo(url: string) {

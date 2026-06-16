@@ -74,7 +74,7 @@ export default function FooterEditor() {
           <textarea
             rows={2}
             value={footer.footerSubtitle}
-            placeholder="Tell me about your project and testing needs — let's discuss and work together!"
+            placeholder="Tell me about your project and testing needs - let's discuss and work together!"
             onChange={(e) => set("footerSubtitle", e.target.value)}
           />
         </div>
