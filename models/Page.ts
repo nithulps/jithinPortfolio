@@ -16,9 +16,11 @@ const PageSchema = new Schema(
           _id: false,
           key: { type: String, default: "" }, // stable id, referenced by sections
           name: { type: String, default: "" },
+          description: { type: String, default: "" },
           coverImage: { type: String, default: "" }, // image / video / PDF
           overlayTitle: { type: String, default: "" },
           overlaySubtitle: { type: String, default: "" },
+          showOnHomepage: { type: Boolean, default: false },
         },
       ],
       default: [],

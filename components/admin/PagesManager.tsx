@@ -20,9 +20,11 @@ interface Section {
 interface Category {
   key: string;
   name: string;
+  description: string;
   coverImage: string;
   overlayTitle: string;
   overlaySubtitle: string;
+  showOnHomepage: boolean;
 }
 
 interface PageItem {
@@ -48,7 +50,7 @@ interface PageItem {
 
 const EMPTY_SECTION: Section = { sectionTitle: "", sectionSlug: "", sectionBody: "", sectionImage: "", sectionFiles: [], showOnHomepage: false, sectionOverlayTitle: "", sectionOverlaySub: "", categoryKey: "" };
 
-const EMPTY_CATEGORY: Category = { key: "", name: "", coverImage: "", overlayTitle: "", overlaySubtitle: "" };
+const EMPTY_CATEGORY: Category = { key: "", name: "", description: "", coverImage: "", overlayTitle: "", overlaySubtitle: "", showOnHomepage: false };
 
 function genKey() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -124,7 +126,7 @@ export default function PagesManager() {
     setExpandedIndex(newIndex);
   }
 
-  function setCategory(index: number, key: keyof Category, val: string) {
+  function setCategory(index: number, key: keyof Category, val: string | boolean) {
     if (!editing) return;
     const updated = (editing.categories || []).map((c, i) =>
       i === index ? { ...c, [key]: val } : c
@@ -399,6 +401,10 @@ export default function PagesManager() {
                               <label>Category name</label>
                               <input value={cat.name} onChange={(e) => setCategory(i, "name", e.target.value)} placeholder="e.g. Web Apps" />
                             </div>
+                            <div className="admin-field">
+                              <label>Description (optional)</label>
+                              <textarea rows={3} value={cat.description} onChange={(e) => setCategory(i, "description", e.target.value)} placeholder="Short description shown under the category" />
+                            </div>
                             <MediaUploader
                               label="Cover image / video / PDF"
                               value={cat.coverImage}
@@ -415,6 +421,12 @@ export default function PagesManager() {
                                 <label>Image overlay subtitle (optional)</label>
                                 <input value={cat.overlaySubtitle} onChange={(e) => setCategory(i, "overlaySubtitle", e.target.value)} placeholder="Subtext on cover" />
                               </div>
+                            </div>
+                            <div className="admin-field" style={{ marginTop: 8 }}>
+                              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <input type="checkbox" style={{ width: "auto" }} checked={cat.showOnHomepage ?? false} onChange={(e) => setCategory(i, "showOnHomepage", e.target.checked)} />
+                                Show this category on homepage
+                              </label>
                             </div>
                           </div>
                         )}

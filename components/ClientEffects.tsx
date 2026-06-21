@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Lenis from "lenis";
 
 /**
@@ -11,6 +11,20 @@ import Lenis from "lenis";
  */
 export default function ClientEffects() {
   const pathname = usePathname();
+  const router = useRouter();
+  const lenisRef = useRef<Lenis | null>(null);
+
+  // On a full page reload (not in-app navigation), send the visitor home.
+  useEffect(() => {
+    const nav = performance.getEntriesByType("navigation")[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    if (nav?.type === "reload" && window.location.pathname !== "/") {
+      router.replace("/");
+    }
+    // Run once on initial document load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Smooth scroll - set up once.
   useEffect(() => {
@@ -18,6 +32,7 @@ export default function ClientEffects() {
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
+    lenisRef.current = lenis;
     let rafId: number;
     const raf = (time: number) => {
       lenis.raf(time);
@@ -60,6 +75,11 @@ export default function ClientEffects() {
 
   // Re-run reveal + hover wiring whenever the route changes (new DOM).
   useEffect(() => {
+    // Reset scroll to the top on navigation. Lenis keeps its own scroll
+    // position across route changes, so reset it (and the native scroll).
+    if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
+    window.scrollTo(0, 0);
+
     const revealEls = document.querySelectorAll(".reveal");
     const obs = new IntersectionObserver(
       (entries, observer) => {

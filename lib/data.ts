@@ -3,10 +3,10 @@ import { Project } from "@/models/Project";
 import { Service } from "@/models/Service";
 import { About } from "@/models/About";
 import { Page } from "@/models/Page";
-import type { ProjectDTO, ServiceDTO, AboutDTO, PageDTO } from "@/types";
+import type { ProjectDTO, ServiceDTO, AboutDTO, PageDTO, HomeCategoryDTO } from "@/types";
 
 // Re-export so existing `@/lib/data` type imports keep working.
-export type { ProjectDTO, ServiceDTO, AboutDTO, PageDTO };
+export type { ProjectDTO, ServiceDTO, AboutDTO, PageDTO, HomeCategoryDTO };
 
 // Convert Mongoose docs to plain, serialisable objects for React props.
 function serialize<T>(data: unknown): T {
@@ -147,6 +147,42 @@ export async function getHomepagePages(): Promise<PageDTO[]> {
       })),
     }));
     return serialize<PageDTO[]>(filled);
+  } catch {
+    return [];
+  }
+}
+
+// Categories (across custom pages) flagged to show on the homepage.
+export async function getHomepageCategories(): Promise<HomeCategoryDTO[]> {
+  try {
+    await connectDB();
+    const docs = await Page.find({
+      builtIn: { $ne: true },
+      "categories.showOnHomepage": true,
+    })
+      .sort({ order: 1 })
+      .lean();
+
+    const result: HomeCategoryDTO[] = [];
+    for (const d of docs as Array<Record<string, unknown>>) {
+      const slug = d.slug as string;
+      const pageTitle = ((d.heading as string) || (d.title as string)) ?? "";
+      const cats = (d.categories as Array<Record<string, unknown>>) || [];
+      for (const c of cats) {
+        if (!c.showOnHomepage) continue;
+        result.push({
+          pageSlug: slug,
+          pageTitle,
+          key: (c.key as string) ?? "",
+          name: (c.name as string) ?? "",
+          description: (c.description as string) ?? "",
+          coverImage: (c.coverImage as string) ?? "",
+          overlayTitle: (c.overlayTitle as string) ?? "",
+          overlaySubtitle: (c.overlaySubtitle as string) ?? "",
+        });
+      }
+    }
+    return serialize<HomeCategoryDTO[]>(result);
   } catch {
     return [];
   }

@@ -29,6 +29,11 @@ export default async function SectionDetailPage({
 
   const { page, section } = result;
 
+  const category = (page.categories || []).find((c) => c.key === section.categoryKey);
+  const files = section.sectionFiles || [];
+  const docCount = files.filter(isPdf).length;
+  const mediaCount = files.filter((u) => !isPdf(u)).length;
+
   return (
     <>
       {/* Hero */}
@@ -45,7 +50,8 @@ export default async function SectionDetailPage({
         <div className="project-detail-hero-overlay" />
         <div className="project-detail-hero-content reveal">
           <div className="project-tags">
-            <span>{page.title}</span>
+            <span className="accent">{page.title}</span>
+            {category?.name && <span className="accent">{category.name}</span>}
           </div>
           <h1>{section.sectionTitle}</h1>
         </div>
@@ -59,6 +65,29 @@ export default async function SectionDetailPage({
               className="project-description-content reveal"
               dangerouslySetInnerHTML={{ __html: section.sectionBody }}
             />
+            <aside className="project-meta-sidebar reveal">
+              <div className="meta-sidebar-item">
+                <h4>In this document</h4>
+                <div className="project-tags" style={{ marginTop: 12 }}>
+                  {docCount > 0 && (
+                    <span className="tag-meta">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                      {docCount} {docCount === 1 ? "Document" : "Documents"}
+                    </span>
+                  )}
+                  {mediaCount > 0 && (
+                    <span className="tag-meta">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 20" /></svg>
+                      {mediaCount} {mediaCount === 1 ? "Visual" : "Visuals"}
+                    </span>
+                  )}
+                  <span className="tag-meta">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                    Read &amp; learn
+                  </span>
+                </div>
+              </div>
+            </aside>
           </div>
         )}
 
@@ -93,9 +122,8 @@ export default async function SectionDetailPage({
 
         {/* Navigation */}
         <div className="project-navigation">
-          <Link href={`/${page.slug}`} className="project-nav-link">
-            <span className="nav-dir">Back</span>
-            <span className="nav-title">{page.title}</span>
+          <Link href={`/${page.slug}`} className="btn-hero">
+            ← Back to {page.title}
           </Link>
         </div>
       </div>

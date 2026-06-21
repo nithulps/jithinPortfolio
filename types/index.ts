@@ -60,6 +60,17 @@ export interface AboutDTO {
   socials: { linkedin?: string; github?: string; twitter?: string; instagram?: string };
 }
 
+export interface HomeCategoryDTO {
+  pageSlug: string;
+  pageTitle: string;
+  key: string;
+  name: string;
+  description: string;
+  coverImage: string;
+  overlayTitle: string;
+  overlaySubtitle: string;
+}
+
 export interface PageDTO {
   _id: string;
   title: string;
@@ -68,7 +79,7 @@ export interface PageDTO {
   subtitle: string;
   description: string;
   image: string;
-  categories: { key: string; name: string; coverImage: string; overlayTitle: string; overlaySubtitle: string }[];
+  categories: { key: string; name: string; description: string; coverImage: string; overlayTitle: string; overlaySubtitle: string; showOnHomepage: boolean }[];
   sections: { sectionTitle: string; sectionSlug: string; sectionBody: string; sectionImage: string; sectionFiles: string[]; showOnHomepage: boolean; sectionOverlayTitle: string; sectionOverlaySub: string; categoryKey: string }[];
   showInNavbar: boolean;
   navLabel: string;

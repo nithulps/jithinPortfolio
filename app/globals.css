@@ -230,12 +230,23 @@ html::-webkit-scrollbar-thumb {
 }
 
 @keyframes statusPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.35); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.35);
+    }
 }
 
 @media (max-width: 768px) {
-    #status-badge { display: none; }
+    #status-badge {
+        display: none;
+    }
 }
 
 /* Header Navbar */
@@ -503,7 +514,7 @@ nav.main-menu ul li a.active::after {
     align-items: center;
     width: 100%;
     font-family: var(--font-wide);
-    font-size: clamp(1.4rem, 7vw, 3.5rem);
+    font-size: clamp(1rem, 4vw, 2.5rem);
     font-weight: 800;
     height: clamp(48px, 11vw, 80px);
     overflow: hidden;
@@ -535,7 +546,7 @@ nav.main-menu ul li a.active::after {
 
 .hero h1.hero-title {
     font-family: var(--font-wide);
-    font-size: 9vw;
+    font-size: 7vw;
     line-height: 0.9;
     font-weight: 800;
     color: var(--text-white);
@@ -545,7 +556,7 @@ nav.main-menu ul li a.active::after {
 }
 
 .hero p.hero-desc {
-    max-width: 600px;
+    max-width: 800px;
     font-size: 1.25rem;
     line-height: 1.6;
     color: var(--text-gray);
@@ -783,6 +794,32 @@ nav.main-menu ul li a.active::after {
     font-size: 0.85rem;
     color: var(--text-gray);
     font-weight: 500;
+}
+
+.project-tags span.accent {
+    background: rgba(0, 222, 255, 0.1);
+    border: 1px solid rgba(0, 222, 255, 0.35);
+    color: var(--cyan);
+    font-weight: 600;
+}
+
+.project-tags span.tag-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--btn-border);
+    color: var(--text-white);
+    font-weight: 500;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.project-tags span.tag-meta svg {
+    color: var(--cyan);
+    flex-shrink: 0;
 }
 
 .project-title {
@@ -1259,14 +1296,14 @@ footer.site-footer {
 .page-header-sec {
     max-width: 1300px;
     margin: 0 auto;
-    padding: 40px 50px 60px 50px;
+    padding: 40px 50px 0px 50px;
     position: relative;
     z-index: 1;
 }
 
 .page-header-sec h1 {
     font-family: var(--font-wide);
-    font-size: 5rem;
+    font-size: 4rem;
     font-weight: 800;
     margin-bottom: 30px;
     text-transform: uppercase;
@@ -1276,9 +1313,10 @@ footer.site-footer {
 /* Inline PDF preview cards on section detail pages */
 .pdf-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 22px;
 }
+
 .pdf-card {
     display: block;
     background: linear-gradient(180deg, #14191f, #0f1318);
@@ -1288,14 +1326,16 @@ footer.site-footer {
     text-decoration: none;
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .pdf-card:hover {
     border-color: var(--cyan);
     transform: translateY(-5px);
     box-shadow: 0 18px 36px -16px rgba(0, 222, 255, 0.45);
 }
+
 .pdf-card-thumb {
     position: relative;
-    aspect-ratio: 3 / 4;
+    height: 260px;
     background: #fff;
     overflow: hidden;
     display: flex;
@@ -1303,11 +1343,13 @@ footer.site-footer {
     justify-content: center;
     border-bottom: 1px solid #2a3340;
 }
+
 .pdf-card-thumb .react-pdf__Page,
 .pdf-card-thumb canvas {
     max-width: 100%;
     height: auto !important;
 }
+
 .pdf-card-badge {
     position: absolute;
     top: 10px;
@@ -1322,6 +1364,7 @@ footer.site-footer {
     border-radius: 5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
+
 /* Hover overlay with view action */
 .pdf-card-overlay {
     position: absolute;
@@ -1333,9 +1376,11 @@ footer.site-footer {
     opacity: 0;
     transition: opacity 0.2s ease;
 }
+
 .pdf-card:hover .pdf-card-overlay {
     opacity: 1;
 }
+
 .pdf-card-view {
     display: inline-flex;
     align-items: center;
@@ -1350,15 +1395,18 @@ footer.site-footer {
     transform: translateY(6px);
     transition: transform 0.2s ease;
 }
+
 .pdf-card:hover .pdf-card-view {
     transform: translateY(0);
 }
+
 .pdf-card-foot {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
 }
+
 .pdf-card-foot-icon {
     flex-shrink: 0;
     width: 34px;
@@ -1370,11 +1418,13 @@ footer.site-footer {
     background: rgba(255, 84, 112, 0.12);
     border: 1px solid rgba(255, 84, 112, 0.25);
 }
+
 .pdf-card-meta {
     min-width: 0;
     display: flex;
     flex-direction: column;
 }
+
 .pdf-card-title {
     color: #e7e9ee;
     font-size: 0.9rem;
@@ -1383,24 +1433,28 @@ footer.site-footer {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .pdf-card-sub {
     color: #6a768a;
     font-size: 0.75rem;
     margin-top: 1px;
 }
+
 .pdf-card-state {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    aspect-ratio: 3 / 4;
+    height: 260px;
     background: #161c24;
     color: #6a768a;
 }
+
 .pdf-card-err {
     font-weight: 700;
     color: #ff8095;
 }
+
 .pdf-card-spinner {
     width: 26px;
     height: 26px;
@@ -1443,6 +1497,7 @@ footer.site-footer {
     .page-category-cover {
         aspect-ratio: 16 / 10;
     }
+
     .page-category-name {
         font-size: 1.5rem;
     }
@@ -1720,14 +1775,31 @@ footer.site-footer {
 }
 
 @keyframes formSuccessIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes formSuccessPop {
-    0%   { transform: scale(0.3); opacity: 0; }
-    60%  { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* About Page Layout */
@@ -1827,7 +1899,7 @@ footer.site-footer {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 100px 50px 40px 50px;
+    padding: 100px 50px 0px 50px;
     z-index: 1;
 }
 
@@ -1866,7 +1938,7 @@ footer.site-footer {
 
 .project-detail-hero-content h1 {
     font-family: var(--font-wide);
-    font-size: 5rem;
+    font-size: 4rem;
     font-weight: 800;
     margin-bottom: 20px;
     letter-spacing: -2px;
@@ -1972,7 +2044,7 @@ footer.site-footer {
 
 .project-navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 60px;
@@ -2142,6 +2214,7 @@ footer.site-footer {
     color: var(--btn-text);
     font-weight: 600;
 }
+
 /* ── Competency statement: scroll-linked word reveal (JS-driven) ─────── */
 .reveal-words .cw {
     display: inline-block;
@@ -2150,6 +2223,7 @@ footer.site-footer {
     filter: blur(10px);
     will-change: opacity, transform, filter;
 }
+
 @media (prefers-reduced-motion: reduce) {
     .reveal-words .cw {
         opacity: 1 !important;
@@ -2235,8 +2309,14 @@ footer.site-footer {
     gap: 60px 40px;
     margin-top: 30px;
 }
-.custom-page-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.custom-page-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+.custom-page-grid.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.custom-page-grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
 
 /* Custom page card — mirrors .project-card */
 .custom-page-card {

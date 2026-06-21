@@ -52,9 +52,11 @@ export async function GET() {
       const categories = ((p.categories || []) as any[]).map((c) => ({
         key: c.key ?? "",
         name: c.name ?? "",
+        description: c.description ?? "",
         coverImage: c.coverImage ?? "",
         overlayTitle: c.overlayTitle ?? "",
         overlaySubtitle: c.overlaySubtitle ?? "",
+        showOnHomepage: c.showOnHomepage ?? false,
       }));
       return {
         ...p,
