@@ -185,8 +185,11 @@ function CustomPageSection({ page }: { page: PageDTO }) {
         <div className="projects-grid reveal">
           {homeSections.map((sec, i) => {
             const hasOverlay = !!(sec.sectionOverlayTitle || sec.sectionOverlaySub);
-            return (
-              <div key={i} className="project-card">
+            const secSlug =
+              sec.sectionSlug ||
+              sec.sectionTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+            const cardInner = (
+              <>
                 <div className="project-image-wrapper">
                   {sec.sectionImage && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -204,7 +207,14 @@ function CustomPageSection({ page }: { page: PageDTO }) {
                 {sec.sectionBody && (
                   <p className="project-excerpt" dangerouslySetInnerHTML={{ __html: sec.sectionBody }} />
                 )}
-              </div>
+              </>
+            );
+            return secSlug ? (
+              <Link key={i} href={`/${page.slug}/${secSlug}`} className="project-card reveal" style={{ textDecoration: "none" }}>
+                {cardInner}
+              </Link>
+            ) : (
+              <div key={i} className="project-card">{cardInner}</div>
             );
           })}
         </div>

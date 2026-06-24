@@ -274,7 +274,7 @@ header.header-nav.scrolled {
 }
 
 .logo img {
-    height: 64px;
+    height: 85px;
     width: auto;
     max-width: 220px;
     object-fit: contain;
@@ -594,34 +594,34 @@ nav.main-menu ul li a.active::after {
 /* Scroll down indicator */
 .scroll-indicator {
     position: absolute;
-    bottom: 40px;
+    bottom: -23px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     color: var(--text-gray);
-    font-size: 0.85rem;
-    letter-spacing: 2px;
+    font-size: 1.05rem;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     opacity: 0.7;
     animation: bounce 2s infinite ease-in-out;
 }
 
 .scroll-mouse {
-    width: 24px;
-    height: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
+    width: 34px;
+    height: 56px;
+    border: 2.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 28px;
     position: relative;
 }
 
 .scroll-wheel {
-    width: 4px;
-    height: 8px;
+    width: 6px;
+    height: 11px;
     background: var(--cyan);
-    border-radius: 2px;
+    border-radius: 3px;
     position: absolute;
-    top: 8px;
+    top: 11px;
     left: 50%;
     transform: translateX(-50%);
     animation: scroll-wheel-anim 1.5s infinite ease-in-out;
@@ -2023,11 +2023,14 @@ footer.site-footer {
     gap: 40px;
 }
 
-.project-visuels-grid img {
+.project-visuels-grid img,
+.project-visuels-grid video {
     width: 100%;
-    height: auto;
+    max-height: 520px;
+    object-fit: cover;
     border-radius: 20px;
     border: 1px solid var(--card-border);
+    display: block;
 }
 
 .project-iframe-container {
