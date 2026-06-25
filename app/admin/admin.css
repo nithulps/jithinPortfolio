@@ -72,6 +72,37 @@
   background: rgba(0, 222, 255, 0.12);
   color: #00deff;
 }
+.admin-nav-icon {
+  color: #6a768a;
+  transition: color 0.15s;
+}
+.admin-nav-link:hover .admin-nav-icon,
+.admin-nav-link.active .admin-nav-icon {
+  color: #00deff;
+}
+
+/* Mobile drawer toggle (hidden on desktop) */
+.admin-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 40;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(13, 17, 22, 0.85);
+  border: 1px solid #1e2530;
+  color: #00deff;
+  cursor: pointer !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.admin-sidebar-backdrop {
+  display: none;
+}
 
 .admin-sidebar-bottom {
   margin-top: auto;
@@ -503,5 +534,78 @@
   color: #00deff;
   background: rgba(0, 222, 255, 0.08);
   box-shadow: inset 0 -2px 0 #00deff;
+}
+
+/* Mobile: sidebar becomes a slide-in drawer toggled by the menu button */
+@media (max-width: 768px) {
+  .admin-menu-toggle {
+    display: flex;
+  }
+
+  .admin-sidebar {
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  }
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+  .admin-sidebar .admin-brand {
+    padding-left: 50px;
+  }
+
+  .admin-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .admin-main {
+    margin-left: 0;
+    padding: 68px 16px 40px;
+    max-width: 100%;
+  }
+
+  .admin-h1 {
+    font-size: 1.35rem;
+  }
+
+  /* Stack two-column field rows */
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Toolbars stack vertically */
+  .admin-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-toolbar .admin-btn {
+    justify-content: center;
+  }
+
+  /* Wide tables scroll horizontally inside their card */
+  .admin-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-table {
+    min-width: 560px;
+  }
+
+  /* Tabs scroll horizontally instead of wrapping */
+  .admin-tabs-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .admin-tab-btn {
+    flex-shrink: 0;
+  }
 }
 

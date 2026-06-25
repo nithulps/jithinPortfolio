@@ -136,23 +136,23 @@ export default function Header({
 
         <div className="menu-overlay-socials">
           {socials?.linkedin && (
-            <a href={socials.linkedin} target="_blank" rel="noreferrer">
-              <i className="fab fa-linkedin" /> LinkedIn
+            <a href={socials.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
+              <i className="fab fa-linkedin" />
             </a>
           )}
           {socials?.github && (
-            <a href={socials.github} target="_blank" rel="noreferrer">
-              <i className="fab fa-github" /> GitHub
+            <a href={socials.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+              <i className="fab fa-github" />
             </a>
           )}
           {socials?.instagram && (
-            <a href={socials.instagram} target="_blank" rel="noreferrer">
-              <i className="fab fa-instagram" /> Instagram
+            <a href={socials.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
+              <i className="fab fa-instagram" />
             </a>
           )}
         </div>
 
-        <div className="menu-overlay-marquee aeruk-marquee">
+        <div className="menu-overlay-marquee">
           <div className="marquee-content">
             {Array.from({ length: 6 }).map((_, i) => (
               <Link key={i} href="/contact" onClick={() => setOpen(false)}>

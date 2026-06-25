@@ -17,9 +17,11 @@ function PdfViewerInner() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sidebarWidth] = useState(260);
   const [pageWidth, setPageWidth] = useState(800);
+  const [isMobile, setIsMobile] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const onDocumentLoad = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -27,39 +29,60 @@ function PdfViewerInner() {
     pageRefs.current = new Array(numPages).fill(null);
   }, []);
 
-  // Responsive page width for the main view.
+  // Responsive layout + page width for the main view.
   useEffect(() => {
-    const update = () =>
-      setPageWidth(Math.min(900, window.innerWidth - sidebarWidth - 80));
+    const update = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      setPageWidth(
+        mobile
+          ? window.innerWidth - 24
+          : Math.min(900, window.innerWidth - sidebarWidth - 80)
+      );
+    };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, [sidebarWidth]);
 
-  // Track which page is most visible so the toolbar + thumbnails stay in sync.
+  const thumbWidth = isMobile ? 90 : sidebarWidth - 40;
+
+  // Track the page currently at the top of the viewport so the toolbar +
+  // thumbnails stay in sync. (Landscape slides can be fully visible several at
+  // a time, so "closest to the top" is more reliable than intersection ratio.)
   useEffect(() => {
-    if (!numPages) return;
-    const root = scrollRef.current;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          const p = Number((visible.target as HTMLElement).dataset.page);
-          if (p) setCurrentPage(p);
+    const sc = scrollRef.current;
+    if (!sc || !numPages) return;
+    const onScroll = () => {
+      const containerTop = sc.getBoundingClientRect().top;
+      let best = 1;
+      let bestDist = Infinity;
+      pageRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const dist = Math.abs(el.getBoundingClientRect().top - containerTop);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i + 1;
         }
-      },
-      { root, threshold: [0.25, 0.5, 0.75] }
-    );
-    pageRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
+      });
+      setCurrentPage(best);
+    };
+    sc.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => sc.removeEventListener("scroll", onScroll);
   }, [numPages]);
 
   const scrollToPage = useCallback((page: number) => {
+    setCurrentPage(page);
     const el = pageRefs.current[page - 1];
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
+
+  // Keep the active thumbnail centered in the strip as the page changes.
+  useEffect(() => {
+    const el = thumbRefs.current[currentPage - 1];
+    if (el) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [currentPage]);
 
   if (!url) {
     return (
@@ -70,38 +93,52 @@ function PdfViewerInner() {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "#0b0d10", fontFamily: "inherit" }}>
+    <div style={{ display: "flex", flexDirection: isMobile ? "column-reverse" : "row", height: "100vh", overflow: "hidden", backgroundColor: "#0b0d10", fontFamily: "inherit" }}>
 
-      {/* Sidebar */}
+      {/* Sidebar / thumbnail strip */}
       <aside style={{
-        width: sidebarWidth,
-        minWidth: sidebarWidth,
+        width: isMobile ? "100%" : sidebarWidth,
+        minWidth: isMobile ? "100%" : sidebarWidth,
+        height: isMobile ? "auto" : undefined,
         backgroundColor: "#11151a",
-        borderRight: "1px solid #1e2530",
+        borderRight: isMobile ? "none" : "1px solid #1e2530",
+        borderTop: isMobile ? "1px solid #1e2530" : "none",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        flexShrink: 0,
       }}>
-        {/* Sidebar header */}
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2530", display: "flex", alignItems: "center", gap: 10 }}>
-          <a
-            href="javascript:history.back()"
-            style={{ color: "#aab2c0", textDecoration: "none", fontSize: "1.1rem", lineHeight: 1 }}
-            title="Go back"
-          >
-            ←
-          </a>
-          <div>
-            <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e7e9ee" }}>PDF Viewer</div>
-            <div style={{ fontSize: "0.75rem", color: "#6a768a" }}>{numPages} pages</div>
+        {/* Sidebar header (desktop only) */}
+        {!isMobile && (
+          <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2530", display: "flex", alignItems: "center", gap: 10 }}>
+            <a
+              href="javascript:history.back()"
+              style={{ color: "#aab2c0", textDecoration: "none", fontSize: "1.1rem", lineHeight: 1 }}
+              title="Go back"
+            >
+              ←
+            </a>
+            <div>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e7e9ee" }}>PDF Viewer</div>
+              <div style={{ fontSize: "0.75rem", color: "#6a768a" }}>{numPages} pages</div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Page thumbnails */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 8 }}>
+        {/* Page thumbnails — vertical on desktop, horizontal scroll strip on mobile */}
+        <div style={{
+          flex: isMobile ? "none" : 1,
+          overflowY: isMobile ? "hidden" : "auto",
+          overflowX: isMobile ? "auto" : "hidden",
+          padding: isMobile ? "10px 12px" : "12px 10px",
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          gap: 8,
+        }}>
           {numPages > 0 && Array.from({ length: numPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
+              ref={(el) => { thumbRefs.current[page - 1] = el; }}
               onClick={() => scrollToPage(page)}
               style={{
                 background: "none",
@@ -113,12 +150,13 @@ function PdfViewerInner() {
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 6,
+                flexShrink: 0,
                 transition: "border-color 0.15s ease",
                 backgroundColor: currentPage === page ? "rgba(0,222,255,0.06)" : "transparent",
               }}
             >
               <div style={{
-                width: "100%",
+                width: thumbWidth,
                 backgroundColor: "#fff",
                 borderRadius: 4,
                 overflow: "hidden",
@@ -127,7 +165,7 @@ function PdfViewerInner() {
                 <Document file={url} loading={null} error={null}>
                   <Page
                     pageNumber={page}
-                    width={sidebarWidth - 40}
+                    width={thumbWidth}
                     renderAnnotationLayer={false}
                     renderTextLayer={false}
                     loading={
@@ -147,7 +185,7 @@ function PdfViewerInner() {
       </aside>
 
       {/* Main viewer */}
-      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: "#161c24" }}>
+      <main style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: "#161c24" }}>
         {/* Toolbar */}
         <div style={{
           height: 50,
@@ -180,7 +218,7 @@ function PdfViewerInner() {
         </div>
 
         {/* PDF page display — all pages, continuous scroll */}
-        <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "32px 24px" }}>
+        <div ref={scrollRef} style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "auto", WebkitOverflowScrolling: "touch", padding: isMobile ? "16px 12px" : "32px 24px" }}>
           <Document
             file={url}
             onLoadSuccess={onDocumentLoad}

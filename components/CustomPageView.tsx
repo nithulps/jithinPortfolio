@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import type { PageDTO } from "@/types";
 
 type Section = PageDTO["sections"][number];
@@ -21,19 +21,26 @@ export default function CustomPageView({ page }: { page: PageDTO }) {
   const categories = page.categories || [];
   const hasCategories = categories.length > 0;
 
-  // Allow deep-linking a category (e.g. from the homepage): /slug?category=<key>
+  // The open category is driven by the URL (?category=<key>) so opening a
+  // category pushes a history entry — swiping back from a section detail page
+  // then returns to the category's sections, not the category grid.
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const requestedKey = searchParams.get("category");
-  const initialKey =
+  const activeKey =
     requestedKey && categories.some((c) => c.key === requestedKey) ? requestedKey : null;
-  const [activeKey, setActiveKey] = useState<string | null>(initialKey);
+
+  const openCategory = (key: string) =>
+    router.push(`${pathname}?category=${encodeURIComponent(key)}`, { scroll: false });
+  const backToGrid = () => router.push(pathname, { scroll: false });
 
   const displayMode = page.displayMode || "grid";
   const pageSlug = page.slug;
   const activeCat = activeKey ? categories.find((c) => c.key === activeKey) : null;
 
   // Jump to top when switching between the category grid and a category's
-  // sections (state change, not navigation, so scroll won't reset on its own).
+  // sections (the param change re-renders without a fresh page load).
   const mounted = useRef(false);
   useEffect(() => {
     if (!mounted.current) {
@@ -161,8 +168,8 @@ export default function CustomPageView({ page }: { page: PageDTO }) {
               className="project-card reveal active"
               role="button"
               tabIndex={0}
-              onClick={() => setActiveKey(cat.key)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveKey(cat.key)}
+              onClick={() => openCategory(cat.key)}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openCategory(cat.key)}
               style={{ cursor: "pointer" }}
             >
               <div className="project-image-wrapper">
@@ -209,10 +216,10 @@ export default function CustomPageView({ page }: { page: PageDTO }) {
           <button
             type="button"
             className="btn-outline"
-            onClick={() => setActiveKey(null)}
+            onClick={backToGrid}
             style={{ padding: "8px 20px", fontSize: "0.9rem" }}
           >
-            ← Back to categories
+← Back
           </button>
         )}
       </div>
