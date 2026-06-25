@@ -53,6 +53,18 @@
   font-size: 1.2rem;
   margin-bottom: 24px;
   color: #00deff;
+  display: flex;
+  justify-content: center;
+}
+.admin-brand-logo {
+  display: block;
+  height: 60px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  padding: 7px 7px;
+  border-radius: 12px;
+  box-shadow: 0 0 28px -6px rgba(0, 222, 255, 0.5);
 }
 
 .admin-nav-link {

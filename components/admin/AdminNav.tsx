@@ -56,7 +56,7 @@ function NavIcon({ href }: { href: string }) {
   }
 }
 
-export default function AdminNav() {
+export default function AdminNav({ logo }: { logo?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   
@@ -135,7 +135,14 @@ export default function AdminNav() {
       {open && <div className="admin-sidebar-backdrop" onClick={() => setOpen(false)} />}
 
       <aside className={`admin-sidebar${open ? " open" : ""}`}>
-        <div className="admin-brand">Jithin · Admin</div>
+        <div className="admin-brand">
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="Jithin" className="admin-brand-logo" />
+          ) : (
+            <span>Jithin · Admin</span>
+          )}
+        </div>
         <nav style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         {links.map((l, i) => {
           const active = l.href === "/admin" ? pathname === "/admin" : pathname.startsWith(l.href);
