@@ -110,7 +110,7 @@ export default async function AdminDashboard() {
                     <span style={{ color: "#8b93a3", fontSize: "0.82rem" }}>({m.email})</span>
                   </div>
                   <span style={{ color: "#6a768a", fontSize: "0.82rem" }}>
-                    {new Date(m.createdAt).toLocaleDateString()}
+                    {new Date(m.createdAt).toLocaleDateString("en-GB")}
                   </span>
                 </div>
                 {m.projectType && (

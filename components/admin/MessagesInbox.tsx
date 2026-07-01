@@ -90,7 +90,7 @@ export default function MessagesInbox() {
                     </td>
                     <td>{m.name}</td>
                     <td>{m.projectType || "—"}</td>
-                    <td>{new Date(m.createdAt).toLocaleDateString()}</td>
+                    <td>{new Date(m.createdAt).toLocaleDateString("en-GB")}</td>
                     <td>
                       <button
                         className="admin-btn danger"
