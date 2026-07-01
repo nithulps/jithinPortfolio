@@ -4,6 +4,7 @@ import { Page } from "@/models/Page";
 import { slugify } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const BUILT_IN_PAGES = [
   { title: "Projects", slug: "projects", builtIn: true, builtInKey: "projects", showInNavbar: true, showOnHomepage: true, order: 1 },

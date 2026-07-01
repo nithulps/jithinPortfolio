@@ -22,7 +22,7 @@ export default function MessagesInbox() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/admin/contacts");
+    const res = await fetch("/api/admin/contacts", { cache: "no-store" });
     setItems(await res.json());
     setLoading(false);
   }

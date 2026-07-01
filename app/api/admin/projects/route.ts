@@ -4,6 +4,7 @@ import { Project } from "@/models/Project";
 import { slugify } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   await connectDB();
